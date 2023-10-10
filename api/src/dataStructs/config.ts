@@ -17,6 +17,8 @@ export default class Config {
   private static readonly envVarMongoDB: string = 'MONGO_DB';
   private static readonly envVarMongoQueueExpiry: string = 'QUEUE_EXPIRY';
 
+  private static readonly envVarExpressPort: string = 'EXPRESS_PORT';
+
   private static readonly envVarPSK: string = 'PRE_SHARED_KEY';
 
   /** Copies from Environment and save into these variable names. */
@@ -32,6 +34,7 @@ export default class Config {
   public readonly mongoDB: string;
   public readonly mongoQueueExpiry: number;
 
+  public readonly expressPort: number;
   public readonly psk: string | undefined;
 
   /**
@@ -58,6 +61,8 @@ export default class Config {
     this.mongoDB = Config._parseString(env[Config.envVarMongoDB]) ?? 'db';
     this.mongoQueueExpiry =
       Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? 7200;
+
+    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 3000;
 
     // PSK
     let temp = Config._parseString(env[Config.envVarPSK]);

@@ -1,11 +1,9 @@
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
 
 import languageType from '../dataStructs/languageType';
 import questionType from '../dataStructs/questionType';
 
-function jsonValidator(req: Request, res: Response, next: NextFunction) {
+export function jsonValidator(req: Request, res: Response, next: NextFunction) {
   if (req.is('json')) {
     const jsonData = req.body;
     if (isValidJson(jsonData)) {
@@ -18,8 +16,12 @@ function jsonValidator(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-function cookieValidator(req: Request, res: Response, next: NextFunction) {
-  const sessionID = req.cookies.sessionID;
+export function cookieValidator(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const sessionID = req.cookies['session-token'];
   if (sessionID) {
     // check for valid sessionID by contacting user service here
     next();

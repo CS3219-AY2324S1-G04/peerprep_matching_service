@@ -31,6 +31,7 @@ services:
       MONGO_PASS: ${MONGO_PASS}
       QUEUE_EXPIRY: ${QUEUE_EXPIRY}
       PRE_SHARED_KEY: ${PRE_SHARED_KEY}
+      EXPRESS_PORT: ${EXPRESS_PORT}
 
     networks:
       - network1
