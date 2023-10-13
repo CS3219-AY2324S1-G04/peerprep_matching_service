@@ -1,0 +1,49 @@
+{
+  "name": "room_service",
+  "version": "1.0.0",
+  "description": "Maintains the state of the rooms where the users are in. ",
+  "main": "main.js",
+  "scripts": {
+    "start:dev": "nodemon",
+    "start": "npm run build && node ./build/main.js",
+    "build": "rimraf ./build && tsc",
+    "test": "jest ./tests",
+    "format": "prettier --config .prettierrc --write 'src/**/*.ts' --write 'tests/**/*.ts'",
+    "lint": "eslint . --ext .ts",
+    "fix": "npm run format && eslint . --ext .ts --fix"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.2.0",
+    "@types/cookie-parser": "^1.4.4",
+    "@types/express": "^4.17.18",
+    "@types/ioredis": "^5.0.0",
+    "@types/jest": "^29.5.5",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^20.6.2",
+    "@types/uuid": "^9.0.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "axios": "^1.5.1",
+    "eslint": "^8.49.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-jsdoc": "^46.8.1",
+    "eslint-plugin-prettier": "^5.0.0",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.1",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "http": "^0.0.1-security",
+    "ioredis": "^5.3.2",
+    "mongoose": "^5.11.97",
+    "package.json": "^0.0.0",
+    "uuid": "^9.0.0"
+  }
+}
