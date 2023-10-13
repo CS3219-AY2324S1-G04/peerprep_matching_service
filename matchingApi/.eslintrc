@@ -1,7 +1,10 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "parserOptions": { "project": "./tsconfig.json", "tsconfigRootDir": "./api" },
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "./matchingApi"
+  },
   "plugins": ["@typescript-eslint", "prettier"],
   "extends": [
     "eslint:recommended",

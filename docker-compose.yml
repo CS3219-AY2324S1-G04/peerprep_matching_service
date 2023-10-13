@@ -32,6 +32,8 @@ services:
       QUEUE_EXPIRY: ${QUEUE_EXPIRY}
       PRE_SHARED_KEY: ${PRE_SHARED_KEY}
       EXPRESS_PORT: ${EXPRESS_PORT}
+      SERVICE_USER_HOST: "" #Todo: name of service
+      SERVICE_QUESTION_HOST: "" #Todo: name of service
 
     networks:
       - network1

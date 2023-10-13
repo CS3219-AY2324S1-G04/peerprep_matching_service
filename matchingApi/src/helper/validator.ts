@@ -1,8 +1,19 @@
 import express, { NextFunction, Request, Response } from 'express';
 
+import Config from '../dataStructs/config';
 import languageType from '../dataStructs/languageType';
 import questionType from '../dataStructs/questionType';
 
+const config = Config.getInstance();
+
+/**
+ * Middleman function to check if json is in the correct format.
+ *
+ * @param req Request
+ * @param res Response
+ * @param next Next
+ * @returns Bad request if not JSON or in the correct format. Else proceed.
+ */
 export function jsonValidator(req: Request, res: Response, next: NextFunction) {
   if (req.is('json')) {
     const jsonData = req.body;
@@ -16,7 +27,19 @@ export function jsonValidator(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function cookieValidator(
+/**
+ * Middleman function to check if session-token exist.
+ * If exist: proceed
+ * Not exist: return 401 unauthorized
+ *
+ * Note: This middleware does not perform actual user authentication and is reliant on user service.
+ *
+ * TODO: link up with user-service
+ *
+ * @param config An instance of the application configuration.
+ * @returns Express middleware function
+ */
+export function sessionCookieValidator(
   req: Request,
   res: Response,
   next: NextFunction,

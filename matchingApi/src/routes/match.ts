@@ -1,6 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express';
 
-import { cookieValidator, jsonValidator } from '../helper/validator';
+import { jsonValidator, sessionCookieValidator } from '../helper/validator';
 import { queueEntityModel } from '../mongoModels/queueEntity';
 import { roomInfoModel } from '../mongoModels/roomInfo';
 import { userMatchModel } from '../mongoModels/userMatch';

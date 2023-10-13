@@ -27,14 +27,14 @@ export enum dbIndex {
  * 1. Not deleting this file allows us to reuse this later if needed
  * 2. For example: If Matching service is maintaining session of ROOM, then
  * 2.1 Matching service will delete rooms that have > X minutes inactivity
- * 2.2 Collab service will need to continuously send updates (activity) to maintain the session lifetime
+ * 2.2 Collaboration service will need to continuously send updates (activity) to maintain the session lifetime
  * 2.3 To prevent overload, temporarily cache with Y minutes TTL is established
- * 2.4 Collab checks if cache exists, if it does do nothing, if not,
+ * 2.4 Collaboration checks if cache exists, if it does do nothing, if not,
  *     send update to matching service to reset X minutes inactivity.
  *     create cache.
  */
 export default class redisClient {
-  private static readonly config: Config = new Config();
+  private static readonly config: Config = Config.getInstance();
 
   private static instance: redisClient | null = null;
   private redis: Redis;

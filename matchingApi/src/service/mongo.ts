@@ -11,24 +11,20 @@ import { userMatchModel } from '../mongoModels/userMatch';
 /** Represents the connection to a mongo instance. */
 export default class mongoClient {
   /** Singleton */
-  private static instance: mongoClient;
 
   private connection: mongoose.Mongoose | null;
-
-  private static readonly config: Config = new Config();
 
   /**
    * Connects to a mongodb and instantiates the collection
    */
-  private constructor() {
+  public constructor() {
+    const config = Config.getInstance();
+
     let uri: string = 'mongodb://';
-    if (
-      mongoClient.config.mongoUser != '' &&
-      mongoClient.config.mongoPass != ''
-    ) {
-      uri += `${mongoClient.config.mongoUser}:${mongoClient.config.mongoPass}@`;
+    if (config.mongoUser != '' && config.mongoPass != '') {
+      uri += `${config.mongoUser}:${config.mongoPass}@`;
     }
-    uri += `${mongoClient.config.mongoHost}:${mongoClient.config.mongoPort}/${mongoClient.config.mongoDB}`;
+    uri += `${config.mongoHost}:${config.mongoPort}/${config.mongoDB}`;
 
     console.log(`Attempting to connect to ${uri}`);
 
@@ -40,20 +36,9 @@ export default class mongoClient {
   }
 
   /**
-   * @returns The mongo db connection.
-   */
-  public static getInstance(): mongoClient {
-    if (!mongoClient.instance) {
-      mongoClient.instance = new mongoClient();
-    }
-    return mongoClient.instance;
-  }
-
-  /**
    * Connects to a particular mongo at a particular URI
    * @param uri the
    */
-
   private async connect(uri: string): Promise<void> {
     this.connection = await mongoose.connect(uri, {
       useNewUrlParser: true,
@@ -64,7 +49,7 @@ export default class mongoClient {
   }
 
   /**
-   * Initializes the collection
+   * Initializes the collection, and then delete the items that were created
    */
   private async initiateCollections(): Promise<void> {
     const userID = { userID: '0' };
@@ -97,7 +82,7 @@ export default class mongoClient {
     ]);
 
     // Delete them because served purpose
-    await Promise.all([
+    Promise.all([
       queueEntityModel.deleteOne(userID),
       userMatchModel.deleteOne(userID),
       roomInfoModel.deleteOne({ roomID: '0' }),

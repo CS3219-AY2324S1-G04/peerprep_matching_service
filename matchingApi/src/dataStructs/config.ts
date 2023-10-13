@@ -21,6 +21,10 @@ export default class Config {
 
   private static readonly envVarPSK: string = 'PRE_SHARED_KEY';
 
+  private static readonly envUserServiceHost: string = 'SERVICE_USER_HOST';
+
+  private static instance: Config | undefined;
+
   /** Copies from Environment and save into these variable names. */
   public readonly redisHost: string;
   public readonly redisPort: number;
@@ -37,6 +41,8 @@ export default class Config {
   public readonly expressPort: number;
   public readonly psk: string | undefined;
 
+  public readonly userServiceHost: string | undefined;
+
   /**
    * Constructs a Config and assigns to each field, the value stored in their
    * corresponding environment variable. If an environment variable does not
@@ -44,7 +50,7 @@ export default class Config {
    *
    * @param env - Environment variables.
    */
-  constructor(env: NodeJS.ProcessEnv = process.env) {
+  private constructor(env: NodeJS.ProcessEnv = process.env) {
     // Redis
     this.redisHost =
       Config._parseString(env[Config.envVarRedisHost]) ?? '127.0.0.1';
@@ -60,7 +66,7 @@ export default class Config {
     this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? '';
     this.mongoDB = Config._parseString(env[Config.envVarMongoDB]) ?? 'db';
     this.mongoQueueExpiry =
-      Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? 7200;
+      Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? 30 * 1000;
 
     this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 3000;
 
@@ -72,6 +78,15 @@ export default class Config {
     } else {
       this.psk = temp;
     }
+
+    this.userServiceHost = Config._parseString(env[Config.envUserServiceHost]);
+  }
+
+  public static getInstance(): Config {
+    if (Config.instance == undefined) {
+      Config.instance = new Config();
+    }
+    return Config.instance;
   }
 
   /**
