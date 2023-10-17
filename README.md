@@ -9,6 +9,10 @@ Handles the queuing and matching of users.
 3. Modify the `.env` file as per needed. Refer to [Environment Variables](#environment-variables) for a list of configs.
 4. Create the docker containers by running: `docker compose up`
 
+room-service has its own read me, check it out over there!
+
+---
+
 ## Environment Variables
 
 ### MONGO

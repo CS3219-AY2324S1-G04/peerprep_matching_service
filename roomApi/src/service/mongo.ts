@@ -8,8 +8,8 @@ import { roomInfoModel } from '../mongoModels/roomInfo';
 
 /** Represents the connection to a mongo instance. */
 export default class mongoClient {
-  /** Singleton */
 
+  /** Singleton */
   private connection: mongoose.Mongoose | null;
 
   /**

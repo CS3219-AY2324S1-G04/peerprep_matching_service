@@ -14,8 +14,7 @@ const config = Config.getInstance();
 const roomInfoSchema = new Schema({
   roomID: { type: String, unique: true },
   userIDs: [String],
-  title: { type: String, require: true },
-  description: { type: String, require: true },
+  questionID: { type: String, require: true },
   expireAt: { type: Date, default: Date.now() + config.mongoRoomExpiry },
 });
 
@@ -24,8 +23,7 @@ const roomInfoSchema = new Schema({
 export interface roomInfo extends Document {
   roomID: string;
   userIDs: string[];
-  title: string;
-  description: string;
+  questionID: { type: String; require: true };
   expireAt: Date;
 }
 
