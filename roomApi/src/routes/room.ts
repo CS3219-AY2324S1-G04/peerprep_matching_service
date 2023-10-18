@@ -27,10 +27,10 @@ router.use('/user', user);
  */
 router.get('/:rid/info', async (req, res) => {
   try {
-    const room = await roomInfoModel.findOne({ roomID: req.params.rid }).exec();
+    const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
     if (room) {
       res.status(200).json({
-        'room-id': room.roomID,
+        'room-id': room._id,
         users: room.userIDs,
         'questions-id': room.questionID,
         'expire-at': room.expireAt,
@@ -59,7 +59,7 @@ router.get('/:rid/info', async (req, res) => {
  */
 router.get('/:rid/alive', async (req, res) => {
   try {
-    const room = await roomInfoModel.findOne({ roomID: req.params.rid }).exec();
+    const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
     if (room) {
       res.status(200).end();
     } else {
@@ -102,20 +102,18 @@ router.post('/create', async (req, res) => {
   }
 
   const room = new roomInfoModel({
-    roomID: uuidV4(),
     userIDs: req.body.users,
     questionID: req.body['question-id'],
     expireAt: new Date(Date.now() + config.mongoRoomExpiry),
   });
 
-  // could be failing due to uuidv4 clashing
   room.save((error, document) => {
     if (error) {
       console.error('Error occurred while saving the room:', error);
       res.status(500).end();
     } else {
       res.status(200).json({
-        'room-id': document.roomID,
+        'room-id': document._id,
         'expire-at': room.expireAt,
       });
     }

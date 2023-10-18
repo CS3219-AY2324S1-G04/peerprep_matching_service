@@ -12,18 +12,19 @@ const config = Config.getInstance();
 // If doing this why not just use postgresql for a relational database?
 // Schema allows validation rules for fields, such as allowed data types and value ranges.
 const roomInfoSchema = new Schema({
-  roomID: { type: String, unique: true },
   userIDs: [String],
-  questionID: { type: String, require: true },
-  expireAt: { type: Date, default: Date.now() + config.mongoRoomExpiry },
+  questionID: type: String,
+  expireAt: {
+    type: Date,
+    default: new Date(Date.now() + config.mongoRoomExpiry),
+  },
 });
 
 // Documents are the basic unit in mongoDB.
 // A collection contains documents, and the documents don't need to have the same fields
 export interface roomInfo extends Document {
-  roomID: string;
   userIDs: string[];
-  questionID: { type: String; require: true };
+  questionID: string;
   expireAt: Date;
 }
 

@@ -63,7 +63,7 @@ router.post('/user/:session-token', isValidSessionParam, async (req, res) => {
       .exec();
     if (room) {
       res.status(200).json({
-        'room-id': room.roomID,
+        'room-id': room._id,
         users: room.userIDs,
         'questions-id': room.questionID,
         'expire-at': room.expireAt,

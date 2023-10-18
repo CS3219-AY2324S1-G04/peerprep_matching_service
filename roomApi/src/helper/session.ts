@@ -1,3 +1,7 @@
+/**
+ * Used for inquiring
+ * @file Used to retrieve user-id from user-service using session-token
+ */
 import axios from 'axios';
 import { NextFunction, Request, Response } from 'express';
 
