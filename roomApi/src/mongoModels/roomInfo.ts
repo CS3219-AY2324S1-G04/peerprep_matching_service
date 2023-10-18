@@ -13,7 +13,7 @@ const config = Config.getInstance();
 // Schema allows validation rules for fields, such as allowed data types and value ranges.
 const roomInfoSchema = new Schema({
   userIDs: [String],
-  questionID: type: String,
+  questionID: String,
   expireAt: {
     type: Date,
     default: new Date(Date.now() + config.mongoRoomExpiry),
@@ -24,7 +24,7 @@ const roomInfoSchema = new Schema({
 // A collection contains documents, and the documents don't need to have the same fields
 export interface roomInfo extends Document {
   userIDs: string[];
-  questionID: string;
+  questionID: String;
   expireAt: Date;
 }
 
