@@ -3,12 +3,10 @@
  */
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 
 import Config from './dataStructs/config';
-import { _deleteQueue } from './helper/mongoGarbageCollection';
-import match from './routes/match';
-import queue from './routes/queue';
+import newQueue from './routes/newQueue';
 import mongoClient from './service/mongo';
 
 /**
@@ -45,7 +43,6 @@ export default class App {
   public startServer(): void {
     this.app.listen(this.port, () => {
       console.log(`Server is running on port ${this.port}`);
-      this.ttl();
     });
   }
 
@@ -55,15 +52,6 @@ export default class App {
   }
 
   private routes(): void {
-    this.app.use('/queue', queue);
-    this.app.use('/match', match);
-  }
-
-  /**
-   * Put all
-   */
-
-  private ttl(): void {
-    _deleteQueue();
+    this.app.use('/matching-service/queue', newQueue);
   }
 }

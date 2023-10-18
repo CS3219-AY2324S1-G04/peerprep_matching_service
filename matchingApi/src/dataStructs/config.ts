@@ -5,11 +5,6 @@
 /** Represents the app's configs. */
 export default class Config {
   /** Variable names that are found in environment  */
-  private static readonly envVarRedisHost: string = 'REDIS_HOST';
-  private static readonly envVarRedisPort: string = 'REDIS_PORT';
-  private static readonly envVarRedisPassword: string = 'REDIS_PASSWORD';
-  private static readonly envVarRedisExpiry: string = 'QUEUE_EXPIRY';
-
   private static readonly envVarMongoHost: string = 'MONGO_HOST';
   private static readonly envVarMongoPort: string = 'MONGO_PORT';
   private static readonly envVarMongoUser: string = 'MONGO_USER';
@@ -19,18 +14,16 @@ export default class Config {
 
   private static readonly envVarExpressPort: string = 'EXPRESS_PORT';
 
-  private static readonly envVarPSK: string = 'PRE_SHARED_KEY';
-
   private static readonly envUserServiceHost: string = 'SERVICE_USER_HOST';
+  private static readonly envUserServicePort: string = 'SERVICE_USER_PORT';
+  private static readonly envQuestionServiceHost: string =
+    'SERVICE_QUESTION_HOST';
+  private static readonly envQuestionServicePort: string =
+    'SERVICE_QUESTION_PORT';
 
   private static instance: Config | undefined;
 
   /** Copies from Environment and save into these variable names. */
-  public readonly redisHost: string;
-  public readonly redisPort: number;
-  public readonly redisPass: string;
-  public readonly redisExpiry: number;
-
   public readonly mongoHost: string;
   public readonly mongoPort: number;
   public readonly mongoUser: string;
@@ -41,7 +34,8 @@ export default class Config {
   public readonly expressPort: number;
   public readonly psk: string | undefined;
 
-  public readonly userServiceHost: string | undefined;
+  public readonly userServiceURI: string | undefined;
+  public readonly questionServiceURI: string | undefined;
 
   /**
    * Constructs a Config and assigns to each field, the value stored in their
@@ -51,35 +45,31 @@ export default class Config {
    * @param env - Environment variables.
    */
   private constructor(env: NodeJS.ProcessEnv = process.env) {
-    // Redis
-    this.redisHost =
-      Config._parseString(env[Config.envVarRedisHost]) ?? '127.0.0.1';
-    this.redisPort = Config._parseInt(env[Config.envVarRedisPort]) ?? 6379;
-    this.redisPass = Config._parseString(env[Config.envVarRedisPassword]) ?? '';
-    this.redisExpiry = Config._parseInt(env[Config.envVarRedisExpiry]) ?? 3600;
-
     // Mongo
     this.mongoHost =
       Config._parseString(env[Config.envVarMongoHost]) ?? '127.0.0.1';
-    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? 27017;
+    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? 27018;
     this.mongoUser = Config._parseString(env[Config.envVarMongoUser]) ?? '';
     this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? '';
-    this.mongoDB = Config._parseString(env[Config.envVarMongoDB]) ?? 'db';
+    this.mongoDB =
+      Config._parseString(env[Config.envVarMongoDB]) ?? 'matchingservice';
     this.mongoQueueExpiry =
       Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? 30 * 1000;
 
-    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 3000;
+    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 3001;
 
-    // PSK
-    let temp = Config._parseString(env[Config.envVarPSK]);
-    if (temp == undefined) {
-      // can't set value here, need throw error.
-      console.log('PSK not initialized!!');
-    } else {
-      this.psk = temp;
-    }
+    const userServiceHost =
+      Config._parseString(env[Config.envUserServiceHost]) ?? '127.0.0.1';
+    const userServicePort =
+      Config._parseInt(env[Config.envUserServicePort]) ?? 3000;
+    this.userServiceURI = `http://${userServiceHost}:${userServicePort}`;
 
-    this.userServiceHost = Config._parseString(env[Config.envUserServiceHost]);
+    const questionServiceHost =
+      Config._parseString(env[Config.envQuestionServiceHost]) ?? 'localhost';
+    const questionServicePort =
+      Config._parseInt(env[Config.envQuestionServicePort]) ?? 9001;
+
+    this.questionServiceURI = `http://${questionServiceHost}:${questionServicePort}`;
   }
 
   public static getInstance(): Config {

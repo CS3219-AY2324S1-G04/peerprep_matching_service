@@ -4,9 +4,7 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 
 import Config from '../dataStructs/config';
-import { queueEntityModel } from '../mongoModels/queueEntity';
-import { roomInfoModel } from '../mongoModels/roomInfo';
-import { userMatchModel } from '../mongoModels/userMatch';
+import { queueInfoModel } from '../mongoModels/queueInfo';
 
 /** Represents the connection to a mongo instance. */
 export default class mongoClient {
@@ -56,36 +54,18 @@ export default class mongoClient {
     const options = { upsert: true, setDefaultsOnInsert: true };
 
     const updateFields = {
-      roomID: '0',
-      timeStamp: new Date(new Date().getTime() - 1000 * 60 * 60),
-    };
-
-    const updateFieldsPref = {
-      difficulty: 'easy',
-      preferences: [],
+      difficulty: 'Easy',
+      preferences: ['string'],
       language: 'c',
-      timeStamp: new Date(new Date().getTime() - 1000 * 60 * 60),
-    };
-
-    const updateRoomInfo = {
-      userID: ['0', '0'],
-      difficulty: 'easy',
-      question: 'String',
-      timeStamp: new Date(new Date().getTime() - 1000 * 60 * 60),
+      expireAt: new Date(Date.now() + 60 * 1000 * 60),
     };
 
     // Insert into DB
     await Promise.all([
-      queueEntityModel.updateOne(userID, updateFieldsPref, options),
-      userMatchModel.updateOne(userID, updateFields, options),
-      roomInfoModel.updateOne({ roomID: '0' }, updateRoomInfo, options),
+      queueInfoModel.updateOne(userID, updateFields, options),
     ]);
 
     // Delete them because served purpose
-    Promise.all([
-      queueEntityModel.deleteOne(userID),
-      userMatchModel.deleteOne(userID),
-      roomInfoModel.deleteOne({ roomID: '0' }),
-    ]);
+    Promise.all([queueInfoModel.deleteOne(userID)]);
   }
 }

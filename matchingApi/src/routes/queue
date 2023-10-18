@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { v4 as uuidV4 } from 'uuid';
 
 import { jsonValidator, sessionCookieValidator } from '../helper/validator';
-import { queueEntityModel } from '../mongoModels/queueEntity';
+import { queueEntityModel } from '../mongoModels/queueInfo';
 import { roomInfoModel } from '../mongoModels/roomInfo';
 import { userMatchModel } from '../mongoModels/userMatch';
 

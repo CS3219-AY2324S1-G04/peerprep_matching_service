@@ -15,15 +15,6 @@ export default class Config {
 
   private static readonly envVarExpressPort: string = 'EXPRESS_PORT';
 
-  // SERVICES
-  private static readonly envUserServiceHost: string = 'SERVICE_USER_HOST';
-  private static readonly envUserServicePort: string = 'SERVICE_USER_PORT';
-
-  private static readonly envQuestionServiceHost: string =
-    'SERVICE_QUESTION_HOST';
-  private static readonly envQuestionServicePort: string =
-    'SERVICE_QUESTION_PORT';
-
   private static instance: Config | undefined;
 
   /** Copies from Environment and save into these variable names. */
@@ -58,22 +49,8 @@ export default class Config {
     this.mongoRoomExpiry =
       Config._parseInt(env[Config.envVarMongoRoomExpiry]) ?? 1 * 60 * 1000;
 
-    console.log(this.mongoRoomExpiry);
-
     this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 3000;
 
-    // public readonly userServiceURI: string | undefined;
-    // public readonly questionServiceURI: string | undefined;
-    const userServiceHost = Config._parseString(env[Config.envUserServiceHost]);
-    const userServicePort = Config._parseInt(env[Config.envUserServicePort]);
-    this.userServiceURI = `http://${userServiceHost}:${userServicePort}`;
-
-    const questionServiceHost =
-      Config._parseString(env[Config.envQuestionServiceHost]) ?? '127.0.0.1';
-    const questionServicePort =
-      Config._parseInt(env[Config.envQuestionServicePort]) ?? 9001;
-
-    this.questionServiceURI = `http://${questionServiceHost}:${questionServicePort}`;
   }
 
   public static getInstance(): Config {

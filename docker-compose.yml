@@ -66,7 +66,7 @@ services:
       - network1
 
     ports:
-      - "${EXPRESS_PORT}:3000"
+      - "${RS_EXPRESS_PORT}:${RS_EXPRESS_PORT}"
 
   peerprep_room_service_mongo:
     container_name: "peerprep_room_service_mongo"
