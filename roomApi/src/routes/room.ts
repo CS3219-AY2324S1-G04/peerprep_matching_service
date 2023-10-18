@@ -1,5 +1,4 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { v4 as uuidV4 } from 'uuid';
 
 import Config from '../dataStructs/config';
 import { isValidSessionCookie, isValidSessionParam } from '../helper/session';
@@ -101,6 +100,8 @@ router.post('/create', async (req, res) => {
     return res.status(400).end();
   }
 
+  console.log(users, questionID);
+
   const room = new roomInfoModel({
     userIDs: req.body.users,
     questionID: req.body['question-id'],
@@ -112,6 +113,7 @@ router.post('/create', async (req, res) => {
       console.error('Error occurred while saving the room:', error);
       res.status(500).end();
     } else {
+      console.log(document);
       res.status(200).json({
         'room-id': document._id,
         'expire-at': room.expireAt,
@@ -120,36 +122,36 @@ router.post('/create', async (req, res) => {
   });
 });
 
-// // Todo: Broadcast Deletion
-// /**
-//  * DELETE ROOM
-//  *
-//  * Returns:
-//  * Room exists and is deleted:
-//  * HTTP 200
-//  *
-//  * Room does not exist:
-//  * HTTP 404
-//  *
-//  * Other errors:
-//  * HTTP 500
-//  */
-// router.delete('/:rid', async (req, res) => {
-//   try {
-//     const room = await roomInfoModel
-//       .findOneAndDelete({ roomID: req.params.rid })
-//       .exec();
+// Todo: Broadcast Deletion
+/**
+ * DELETE ROOM
+ *
+ * Returns:
+ * Room exists and is deleted:
+ * HTTP 200
+ *
+ * Room does not exist:
+ * HTTP 404
+ *
+ * Other errors:
+ * HTTP 500
+ */
+router.delete('/:rid', async (req, res) => {
+  try {
+    const room = await roomInfoModel
+      .findOneAndDelete({ roomID: req.params.rid })
+      .exec();
 
-//     if (room) {
-//       res.status(200).end();
-//     } else {
-//       res.status(404).end();
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500);
-//   }
-// });
+    if (room) {
+      res.status(200).end();
+    } else {
+      res.status(404).end();
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+  }
+});
 
 /**
  * LEAVE ROOM

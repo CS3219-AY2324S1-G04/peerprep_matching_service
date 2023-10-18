@@ -12,7 +12,7 @@ services:
   #     MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_PASS}
 
   #   networks:
-  #     - network1
+  #     - peerprep
 
   #   ports:
   #     - "${MONGO_PORT}:27017"
@@ -38,7 +38,7 @@ services:
   #     SERVICE_QUESTION_HOST: "" #Todo: name of service
 
   #   networks:
-  #     - network1
+  #     - peerprep
   #   ports:
   #     - "${EXPRESS_PORT}:3000"
 
@@ -61,9 +61,11 @@ services:
       EXPRESS_PORT: ${RS_EXPRESS_PORT}
       SERVICE_QUESTION_HOST: peerprep_question_service_api #Todo: name of service
       SERVICE_QUESTION_PORT: ${SERVICE_QUESTION_PORT}
+      SERVICE_USER_HOST: peerprep_user_service_api #Todo: name of service
+      SERVICE_USER_PORT: "${SERVICE_USER_PORT}" #Todo: name of service
 
     networks:
-      - network1
+      - peerprep
 
     ports:
       - "${RS_EXPRESS_PORT}:${RS_EXPRESS_PORT}"
@@ -79,8 +81,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${RS_MONGO_PASS}
 
     networks:
-      - network1
+      - peerprep
 
 networks:
-  network1:
-    name: peerprep
+  peerprep:
+    external: true

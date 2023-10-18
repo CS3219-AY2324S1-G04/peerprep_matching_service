@@ -30,10 +30,10 @@ export async function isValidSessionParam(
   res: Response,
   next: NextFunction,
 ) {
-  if (!req.query['session-token']) {
+  if (req.query['session-token'] === undefined) {
     res.status(401).end();
   }
-  res.locals['session-token'] = req.query.uid;
+  res.locals['session-token'] = req.query['session-token'];
   _isValidSession(req, res, next);
 }
 

@@ -7,7 +7,6 @@ import express, { Request, Response } from 'express';
 
 import Config from './dataStructs/config';
 import room from './routes/room';
-import user from './routes/room/user';
 import mongoClient from './service/mongo';
 
 /**
@@ -55,7 +54,6 @@ export default class App {
 
   private routes(): void {
     this.app.use('/room-service/room', room);
-    this.app.use('/room-service/user', user);
   }
 
   private ttl(): void {}

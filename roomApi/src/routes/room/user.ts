@@ -21,7 +21,7 @@ const config = Config.getInstance();
  * 404: if they don't have a room
  * 500: sever errors
  */
-router.get('/user', isValidSessionCookie, async (req, res) => {
+router.get('/', isValidSessionCookie, async (req, res) => {
   const uid = res.locals['user-id'];
 
   try {
@@ -34,7 +34,7 @@ router.get('/user', isValidSessionCookie, async (req, res) => {
       res.status(404).end();
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).end();
   }
 });
@@ -54,7 +54,7 @@ router.get('/user', isValidSessionCookie, async (req, res) => {
  * 404: if they don't have a room
  * 500: sever errors
  */
-router.post('/user/:session-token', isValidSessionParam, async (req, res) => {
+router.post('/', isValidSessionParam, async (req, res) => {
   const uid = res.locals['user-id'];
 
   try {
@@ -72,7 +72,7 @@ router.post('/user/:session-token', isValidSessionParam, async (req, res) => {
       res.status(404).end();
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).end();
   }
 });
@@ -91,7 +91,7 @@ router.post('/user/:session-token', isValidSessionParam, async (req, res) => {
  * Any other errors:
  * HTTP 500
  */
-router.get('/user/alive', isValidSessionCookie, async (req, res) => {
+router.get('/alive', isValidSessionCookie, async (req, res) => {
   const uid = res.locals['user-id'];
 
   try {
@@ -104,7 +104,7 @@ router.get('/user/alive', isValidSessionCookie, async (req, res) => {
       res.status(404).end();
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).end();
   }
 });
@@ -125,7 +125,7 @@ router.get('/user/alive', isValidSessionCookie, async (req, res) => {
  * Other errors:
  * HTTP 500
  */
-router.put('/user/keep-alive', isValidSessionCookie, async (req, res) => {
+router.put('/keep-alive', isValidSessionCookie, async (req, res) => {
   const uid = res.locals['user-id'];
 
   try {

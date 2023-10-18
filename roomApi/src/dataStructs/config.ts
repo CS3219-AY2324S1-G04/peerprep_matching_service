@@ -15,6 +15,9 @@ export default class Config {
 
   private static readonly envVarExpressPort: string = 'EXPRESS_PORT';
 
+  private static readonly envUserServiceHost: string = 'SERVICE_USER_HOST';
+  private static readonly envUserServicePort: string = 'SERVICE_USER_PORT';
+
   private static instance: Config | undefined;
 
   /** Copies from Environment and save into these variable names. */
@@ -28,7 +31,6 @@ export default class Config {
   public readonly expressPort: number;
 
   public readonly userServiceURI: string | undefined;
-  public readonly questionServiceURI: string | undefined;
 
   /**
    * Constructs a Config and assigns to each field, the value stored in their
@@ -41,7 +43,7 @@ export default class Config {
     // Mongo
     this.mongoHost =
       Config._parseString(env[Config.envVarMongoHost]) ?? '127.0.0.1';
-    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? 27017;
+    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? 27018;
     this.mongoUser = Config._parseString(env[Config.envVarMongoUser]) ?? '';
     this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? '';
     this.mongoDB =
@@ -49,8 +51,12 @@ export default class Config {
     this.mongoRoomExpiry =
       Config._parseInt(env[Config.envVarMongoRoomExpiry]) ?? 1 * 60 * 1000;
 
-    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 3000;
-
+    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 9002;
+    const userServiceHost =
+      Config._parseString(env[Config.envUserServiceHost]) ?? '127.0.0.1';
+    const userServicePort =
+      Config._parseInt(env[Config.envUserServicePort]) ?? 3000;
+    this.userServiceURI = `http://${userServiceHost}:${userServicePort}`;
   }
 
   public static getInstance(): Config {
