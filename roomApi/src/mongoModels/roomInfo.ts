@@ -30,6 +30,7 @@ export interface roomInfo extends Document {
 
 roomInfoSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
+// Pre cannot deal with TTL deletes, only way to use pre is to delete from mongo
 // roomInfoSchema.pre('remove', async function (next) {
 //   await UserToRoomIndex.deleteMany({ roomInfoId: this._id });
 //   next();

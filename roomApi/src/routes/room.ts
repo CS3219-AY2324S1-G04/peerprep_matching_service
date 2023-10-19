@@ -10,66 +10,6 @@ const config = Config.getInstance();
 
 router.use('/user', user);
 
-/**
- * GET ROOM INFO
- *
- * Returns:
- * Room exists:
- * HTTP 200
- * json { 'room-id' : string, users : string[], 'question-id' : string, expire-at: date }
- *
- * Room does not exist:
- * HTTP 404 Room does not exist
- *
- * Other errors:
- * HTTP 500
- */
-router.get('/:rid/info', async (req, res) => {
-  try {
-    const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
-    if (room) {
-      res.status(200).json({
-        'room-id': room._id,
-        users: room.userIDs,
-        'questions-id': room.questionID,
-        'expire-at': room.expireAt,
-      });
-    } else {
-      res.status(404).end();
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).end();
-  }
-});
-
-/**
- * GET ROOM ALIVE
- *
- * Returns:
- * Room exists:
- * HTTP 200
- *
- * Room does not exist:
- * HTTP 404 Room does not exist
- *
- * Other errors:
- * HTTP 500
- */
-router.get('/:rid/alive', async (req, res) => {
-  try {
-    const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
-    if (room) {
-      res.status(200).end();
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    console.log(err);
-    res.status(500);
-  }
-});
-
 // TODO: Convert to event driven, so listen for create event
 // TODO: Convert to event driven, so broadcast for create event
 /**
@@ -100,8 +40,6 @@ router.post('/create', async (req, res) => {
     return res.status(400).end();
   }
 
-  console.log(users, questionID);
-
   const room = new roomInfoModel({
     userIDs: req.body.users,
     questionID: req.body['question-id'],
@@ -113,7 +51,6 @@ router.post('/create', async (req, res) => {
       console.error('Error occurred while saving the room:', error);
       res.status(500).end();
     } else {
-      console.log(document);
       res.status(200).json({
         'room-id': document._id,
         'expire-at': room.expireAt,
@@ -181,6 +118,66 @@ router.put('/leave-room', isValidSessionCookie, async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    res.status(500);
+  }
+});
+
+/**
+ * GET ROOM INFO
+ *
+ * Returns:
+ * Room exists:
+ * HTTP 200
+ * json { 'room-id' : string, users : string[], 'question-id' : string, expire-at: date }
+ *
+ * Room does not exist:
+ * HTTP 404 Room does not exist
+ *
+ * Other errors:
+ * HTTP 500
+ */
+router.get('/:rid/info', async (req, res) => {
+  try {
+    const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
+    if (room) {
+      res.status(200).json({
+        'room-id': room._id,
+        users: room.userIDs,
+        'questions-id': room.questionID,
+        'expire-at': room.expireAt,
+      });
+    } else {
+      res.status(404).end();
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).end();
+  }
+});
+
+/**
+ * GET ROOM ALIVE
+ *
+ * Returns:
+ * Room exists:
+ * HTTP 200
+ *
+ * Room does not exist:
+ * HTTP 404 Room does not exist
+ *
+ * Other errors:
+ * HTTP 500
+ */
+router.get('/:rid/alive', async (req, res) => {
+  try {
+    const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
+    if (room) {
+      res.status(200).end();
+    } else {
+      res.status(404).end();
+    }
+  } catch (err) {
+    console.error(err);
     res.status(500);
   }
 });
