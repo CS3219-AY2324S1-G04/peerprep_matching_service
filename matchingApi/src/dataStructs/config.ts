@@ -20,6 +20,8 @@ export default class Config {
     'SERVICE_QUESTION_HOST';
   private static readonly envQuestionServicePort: string =
     'SERVICE_QUESTION_PORT';
+  private static readonly envRoomServiceHost: string = 'SERVICE_ROOM_HOST';
+  private static readonly envRoomServicePort: string = 'SERVICE_ROOM_PORT';
 
   private static instance: Config | undefined;
 
@@ -32,10 +34,10 @@ export default class Config {
   public readonly mongoQueueExpiry: number;
 
   public readonly expressPort: number;
-  public readonly psk: string | undefined;
 
-  public readonly userServiceURI: string | undefined;
-  public readonly questionServiceURI: string | undefined;
+  public readonly userServiceURI: string;
+  public readonly questionServiceURI: string;
+  public readonly roomServiceURI: string;
 
   /**
    * Constructs a Config and assigns to each field, the value stored in their
@@ -61,7 +63,7 @@ export default class Config {
     const userServiceHost =
       Config._parseString(env[Config.envUserServiceHost]) ?? '127.0.0.1';
     const userServicePort =
-      Config._parseInt(env[Config.envUserServicePort]) ?? 3000;
+      Config._parseInt(env[Config.envUserServicePort]) ?? 9000;
     this.userServiceURI = `http://${userServiceHost}:${userServicePort}`;
 
     const questionServiceHost =
@@ -70,6 +72,13 @@ export default class Config {
       Config._parseInt(env[Config.envQuestionServicePort]) ?? 9001;
 
     this.questionServiceURI = `http://${questionServiceHost}:${questionServicePort}`;
+
+    const roomServiceHost =
+      Config._parseString(env[Config.envRoomServiceHost]) ?? 'localhost';
+    const roomServicePort =
+      Config._parseInt(env[Config.envRoomServicePort]) ?? 9002;
+
+    this.roomServiceURI = `http://${roomServiceHost}:${roomServicePort}`;
   }
 
   public static getInstance(): Config {

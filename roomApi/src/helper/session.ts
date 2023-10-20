@@ -10,10 +10,8 @@ import Config from '../dataStructs/config';
 const config = Config.getInstance();
 
 /**
- * Middleware to call _isValidSession after checking if 'session-token' param
- * or 'session-token' cookie exists.
- *
- * If no parameter is provided, cookie will be checked.
+ * Middleware to check if 'user-id' param exist.
+ * if not it checks for 'session-token' param before passing to _isValidSession.
  *
  * @param req
  * @param res
@@ -30,11 +28,15 @@ export async function isValidSessionParam(
   res: Response,
   next: NextFunction,
 ) {
-  if (req.query['session-token'] === undefined) {
+  if (req.query['user-id'] !== undefined) {
+    res.locals['user-id'] = req.query['user-id'];
+    next();
+  } else if (req.query['session-token'] !== undefined) {
+    res.locals['session-token'] = req.query['session-token'];
+    _isValidSession(req, res, next);
+  } else {
     res.status(401).end();
   }
-  res.locals['session-token'] = req.query['session-token'];
-  _isValidSession(req, res, next);
 }
 
 /**

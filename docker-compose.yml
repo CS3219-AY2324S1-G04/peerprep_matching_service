@@ -61,7 +61,7 @@ services:
       EXPRESS_PORT: ${RS_EXPRESS_PORT}
       SERVICE_QUESTION_HOST: peerprep_question_service_api #Todo: name of service
       SERVICE_QUESTION_PORT: ${SERVICE_QUESTION_PORT}
-      SERVICE_USER_HOST: peerprep_user_service_api #Todo: name of service
+      SERVICE_USER_HOST: user_service_api #Todo: name of service
       SERVICE_USER_PORT: "${SERVICE_USER_PORT}" #Todo: name of service
 
     networks:

@@ -19,6 +19,7 @@ const queueInfoSchema = new Schema({
   },
   preferences: [String],
   language: String,
+  socketID: String,
   expireAt: { type: Date, default: Date.now() + config.mongoQueueExpiry },
 });
 
@@ -27,6 +28,7 @@ export interface queueInfo extends Document {
   difficulty: string;
   preferences: string[];
   language: string;
+  socketID: String;
   expireAt: Date;
 }
 

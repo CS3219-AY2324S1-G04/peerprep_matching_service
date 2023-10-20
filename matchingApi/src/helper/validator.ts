@@ -1,3 +1,4 @@
+import axios from 'axios';
 import express, { NextFunction, Request, Response } from 'express';
 
 import Config from '../dataStructs/config';
@@ -27,32 +28,6 @@ export function jsonValidator(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-/**
- * Middleman function to check if session-token exist.
- * If exist: proceed
- * Not exist: return 401 unauthorized
- *
- * Note: This middleware does not perform actual user authentication and is reliant on user service.
- *
- * TODO: link up with user-service
- *
- * @param config An instance of the application configuration.
- * @returns Express middleware function
- */
-export function sessionCookieValidator(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  const sessionID = req.cookies['session-token'];
-  if (sessionID) {
-    // check for valid sessionID by contacting user service here
-    next();
-  } else {
-    return res.status(401).json({ message: 'You are not logged in.' });
-  }
-}
-
 function isValidJson(jsonData: any): boolean {
   /**
    * A valid json is one with
@@ -71,7 +46,7 @@ function isValidJson(jsonData: any): boolean {
     return false;
   }
 
-  if (!['easy', 'medium', 'hard'].includes(jsonData.difficulty)) {
+  if (!['Easy', 'Medium', 'Hard'].includes(jsonData.difficulty)) {
     return false;
   }
 
@@ -90,10 +65,56 @@ function isValidJson(jsonData: any): boolean {
 
   // Somehow sent is length = 0
   if (validQuestions.length == 0) {
-    jsonData.questions = questionType.qTypes;
+    // jsonData.questions = questionType.qTypes;
+    return false;
   } else {
     jsonData.questions = validQuestions;
   }
 
   return true;
+}
+
+export async function isValidSession(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const session = req.cookies['session-token'];
+
+  if (!session) {
+    return res.status(401).end();
+  }
+
+  const url = config.userServiceURI + '/user-service/user/identity';
+  const param = '?session-token=' + session;
+
+  try {
+    await axios
+      .get(url + param)
+      .then((response) => {
+        const data = response.data;
+        const uid = data['user-id'];
+        if (response.data) {
+          res.locals['user-id'] = uid;
+          next();
+        } else {
+          console.error('Warning: user service not acting as expected.');
+          res.status(500).end();
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          res.status(401).end();
+        } else if (error.response && error.response.status === 500) {
+          console.error('Warning: user service returning 500');
+          res.status(500).end();
+        } else {
+          console.error(error);
+          res.status(500).end();
+        }
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).end();
+  }
 }

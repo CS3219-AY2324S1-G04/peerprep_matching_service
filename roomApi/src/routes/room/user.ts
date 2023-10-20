@@ -45,10 +45,10 @@ router.get('/', isValidSessionCookie, async (req, res) => {
  * Returns
  * 200: if the specified session-token has a room, and return the details in json format
  * {
- * 'room-id': room.roomID,
- * users: room.userIDs,
- * 'questions-id': room.questionID,
- * 'expire-at': room.expireAt,
+ * 'room-id': string,
+ * users: [string],
+ * 'questions-id': string,
+ * 'expire-at': date,
  * }
  * 401: if session is invalid
  * 404: if they don't have a room
@@ -56,6 +56,11 @@ router.get('/', isValidSessionCookie, async (req, res) => {
  */
 router.post('/', isValidSessionParam, async (req, res) => {
   const uid = res.locals['user-id'];
+
+  // Fundamentally used by both Matching and Collab
+  // Matching needs UID, but collab doesn't. Having matching do a second
+  // call to user-service is fine too but repeated work.
+  // Thus queue will call user to get uid, and passes here.
 
   try {
     const room = await roomInfoModel
