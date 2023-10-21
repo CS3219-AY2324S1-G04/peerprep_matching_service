@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express from 'express';
 
 import Config from '../dataStructs/config';
 import { isValidSessionCookie, isValidSessionParam } from '../helper/session';
@@ -36,8 +36,12 @@ router.post('/create', async (req, res) => {
   const questionID = req.body['question-id'];
 
   if (!users || !questionID) {
-    console.error('Missing users or question id');
-    return res.status(400).end();
+    console.error('');
+    return res.status(400).json({
+      status: 400,
+      message: 'Missing parameters.',
+      data: undefined,
+    });
   }
 
   const room = new roomInfoModel({
@@ -48,12 +52,20 @@ router.post('/create', async (req, res) => {
 
   room.save((error, document) => {
     if (error) {
-      console.error('Error occurred while saving the room:', error);
-      res.status(500).end();
+      console.error('Error occurred while creating the room:', error);
+      res.status(500).json({
+        status: 500,
+        message: 'Server error',
+        data: undefined,
+      });
     } else {
       res.status(200).json({
-        'room-id': document._id,
-        'expire-at': room.expireAt,
+        status: 200,
+        message: 'Room has been created!',
+        data: {
+          'room-id': document._id,
+          'expire-at': room.expireAt,
+        },
       });
     }
   });
@@ -80,13 +92,25 @@ router.delete('/:rid', async (req, res) => {
       .exec();
 
     if (room) {
-      res.status(200).end();
+      res.status(200).json({
+        status: 200,
+        message: 'Room has been deleted!',
+        data: undefined,
+      });
     } else {
-      res.status(404).end();
+      res.status(404).json({
+        status: 404,
+        message: 'Room not found',
+        data: undefined,
+      });
     }
   } catch (error) {
     console.error(error);
-    res.status(500);
+    res.status(500).json({
+      status: 500,
+      message: 'Sever Error',
+      data: undefined,
+    });
   }
 });
 
@@ -112,13 +136,25 @@ router.put('/leave-room', isValidSessionCookie, async (req, res) => {
       )
       .exec();
     if (room) {
-      res.status(200).end();
+      res.status(200).json({
+        status: 200,
+        message: 'User has left the room.',
+        data: undefined,
+      });
     } else {
-      res.status(404).end();
+      res.status(404).json({
+        status: 404,
+        message: 'User is not in a room',
+        data: undefined,
+      });
     }
   } catch (error) {
     console.error(error);
-    res.status(500);
+    res.status(500).json({
+      status: 500,
+      message: 'Server Error',
+      data: undefined,
+    });
   }
 });
 
@@ -141,17 +177,29 @@ router.get('/:rid/info', async (req, res) => {
     const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
     if (room) {
       res.status(200).json({
-        'room-id': room._id,
-        users: room.userIDs,
-        'questions-id': room.questionID,
-        'expire-at': room.expireAt,
+        status: 200,
+        message: 'Room Info:',
+        data: {
+          'room-id': room._id,
+          users: room.userIDs,
+          'questions-id': room.questionID,
+          'expire-at': room.expireAt,
+        },
       });
     } else {
-      res.status(404).end();
+      res.status(404).json({
+        status: 404,
+        message: 'Room is not found',
+        data: undefined,
+      });
     }
   } catch (error) {
     console.error(error);
-    res.status(500).end();
+    res.status(500).json({
+      status: 500,
+      message: 'Server Internal Error',
+      data: undefined,
+    });
   }
 });
 
@@ -172,13 +220,25 @@ router.get('/:rid/alive', async (req, res) => {
   try {
     const room = await roomInfoModel.findOne({ _id: req.params.rid }).exec();
     if (room) {
-      res.status(200).end();
+      res.status(200).json({
+        status: 200,
+        message: 'Room is alive',
+        data: undefined,
+      });
     } else {
-      res.status(404).end();
+      res.status(404).json({
+        status: 404,
+        message: 'Unable to find room specified',
+        data: undefined,
+      });
     }
   } catch (err) {
     console.error(err);
-    res.status(500);
+    res.status(500).json({
+      status: 500,
+      message: 'Internal Server Error',
+      data: undefined,
+    });
   }
 });
 

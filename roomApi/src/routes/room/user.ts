@@ -29,13 +29,25 @@ router.get('/', isValidSessionCookie, async (req, res) => {
       .findOne({ userIDs: { $in: [uid] } })
       .exec();
     if (room) {
-      res.status(200).end();
+      res.status(200).json({
+        status: 200,
+        message: 'user already has a room',
+        data: undefined,
+      });
     } else {
-      res.status(404).end();
+      res.status(404).json({
+        status: 404,
+        message: 'User does not have a room',
+        data: undefined,
+      });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).end();
+    res.status(500).json({
+      status: 500,
+      message: 'Sever error',
+      data: undefined,
+    });
   }
 });
 
@@ -74,11 +86,19 @@ router.post('/', isValidSessionParam, async (req, res) => {
         'expire-at': room.expireAt,
       });
     } else {
-      res.status(404).end();
+      res.status(404).json({
+        status: 404,
+        message: 'User does not have a room',
+        data: undefined,
+      });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).end();
+    res.status(500).json({
+      status: 500,
+      message: 'Sever error',
+      data: undefined,
+    });
   }
 });
 
@@ -104,13 +124,25 @@ router.get('/alive', isValidSessionCookie, async (req, res) => {
       .findOne({ userIDs: { $in: [uid] } })
       .exec();
     if (room) {
-      res.status(200).end();
+      res.status(200).json({
+        status: 200,
+        message: 'Room is alive',
+        data: undefined,
+      });
     } else {
-      res.status(404).end();
+      res.status(404).json({
+        status: 404,
+        message: 'Room not found',
+        data: undefined,
+      });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).end();
+    res.status(500).json({
+      status: 500,
+      message: 'Sever error',
+      data: undefined,
+    });
   }
 });
 
@@ -143,12 +175,24 @@ router.put('/keep-alive', isValidSessionCookie, async (req, res) => {
       .exec();
 
     if (room) {
-      res.status(200).end();
+      res.status(200).json({
+        status: 200,
+        message: 'Room lifespan extended',
+        data: undefined,
+      });
     }
-    res.status(404).end();
+    res.status(404).json({
+      status: 404,
+      message: 'Room not found',
+      data: undefined,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).end();
+    res.status(500).json({
+      status: 500,
+      message: 'Sever Error',
+      data: undefined,
+    });
   }
 });
 

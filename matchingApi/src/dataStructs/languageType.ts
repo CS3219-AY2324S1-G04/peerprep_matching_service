@@ -6,7 +6,7 @@
  * Language Type should contain the programming languages stored in the Question service.
  */
 export default class languageType {
-  static lTypes: string[] = ['c', 'python', 'java'];
+  static lTypes: string[] = ['Nil', 'C', 'Python', 'Java'];
 
   /**
    * Queries question service for the languages that are supported.

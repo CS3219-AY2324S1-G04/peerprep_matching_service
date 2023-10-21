@@ -55,8 +55,8 @@ export default class mongoClient {
 
     const updateFields = {
       difficulty: 'Easy',
-      preferences: ['string'],
-      language: 'c',
+      categories: ['String'],
+      language: 'Nil',
       expireAt: new Date(Date.now() + 60 * 1000 * 60),
     };
 

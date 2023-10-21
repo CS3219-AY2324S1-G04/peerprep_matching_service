@@ -17,18 +17,16 @@ const queueInfoSchema = new Schema({
     enum: ['Easy', 'Medium', 'Hard'],
     required: true,
   },
-  preferences: [String],
+  categories: [String],
   language: String,
-  socketID: String,
   expireAt: { type: Date, default: Date.now() + config.mongoQueueExpiry },
 });
 
 export interface queueInfo extends Document {
   userID: string;
   difficulty: string;
-  preferences: string[];
+  categories: string[];
   language: string;
-  socketID: String;
   expireAt: Date;
 }
 

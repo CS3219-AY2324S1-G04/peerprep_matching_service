@@ -15,7 +15,11 @@ const config = Config.getInstance();
  * @param next Next
  * @returns Bad request if not JSON or in the correct format. Else proceed.
  */
-export function jsonValidator(req: Request, res: Response, next: NextFunction) {
+export function middleJsonValidator(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   if (req.is('json')) {
     const jsonData = req.body;
     if (isValidJson(jsonData)) {
@@ -28,7 +32,8 @@ export function jsonValidator(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-function isValidJson(jsonData: any): boolean {
+// passed by reference
+export function isValidJson(jsonData: any): boolean {
   /**
    * A valid json is one with
     {
@@ -39,8 +44,8 @@ function isValidJson(jsonData: any): boolean {
    */
   if (
     jsonData.difficulty == undefined ||
-    jsonData.questions == undefined ||
-    jsonData.language == undefined
+    jsonData.categories == undefined // ||
+    // jsonData.language == undefined
   ) {
     // console.log('undefined');
     return false;
@@ -50,16 +55,16 @@ function isValidJson(jsonData: any): boolean {
     return false;
   }
 
-  if (!languageType.lTypes.includes(jsonData.language)) {
-    return false;
-  }
+  // if (!languageType.lTypes.includes(jsonData.language)) {
+  //   return false;
+  // }
 
-  if (!Array.isArray(jsonData.questions)) {
+  if (!Array.isArray(jsonData.categories)) {
     return false;
   }
 
   // Contains invalid, so remove all invalids
-  const validQuestions: string[] = jsonData.questions.filter((type: string) =>
+  const validQuestions: string[] = jsonData.categories.filter((type: string) =>
     questionType.qTypes.includes(type),
   );
 
@@ -68,13 +73,13 @@ function isValidJson(jsonData: any): boolean {
     // jsonData.questions = questionType.qTypes;
     return false;
   } else {
-    jsonData.questions = validQuestions;
+    jsonData.categories = validQuestions;
   }
 
   return true;
 }
 
-export async function isValidSession(
+export async function middleIsValidSession(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -117,4 +122,64 @@ export async function isValidSession(
     console.error(error);
     res.status(500).end();
   }
+}
+
+// should just convert that into an interface
+export function parseJson(jsonData: any): {
+  difficulty: string;
+  categories: string[];
+  language: string;
+} {
+  /**
+   * A valid json is one with
+    {
+        "difficulty" : "Easy", // Note Case cap
+        "questions" : [<any from questionType>],
+        "language" : "Nil" // Currently fixed to Nil
+    }
+   */
+  let validJson: {
+    difficulty: string;
+    categories: string[];
+    language: string;
+  } = {
+    difficulty: '',
+    categories: [],
+    language: 'Nil',
+  };
+
+  // No difficulty or wrong difficulty
+  if (
+    jsonData.difficulty == undefined ||
+    !['Easy', 'Medium', 'Hard'].includes(jsonData.difficulty)
+  ) {
+    validJson.difficulty = 'Hard';
+  } else {
+    validJson.difficulty = jsonData.difficulty;
+  }
+
+  // No language or wrong language
+  if (
+    jsonData.language == undefined ||
+    !languageType.lTypes.includes(jsonData.language)
+  ) {
+    validJson.language = 'Nil';
+  }
+
+  // No questions or wrong questions. Select all.
+  if (Array.isArray(jsonData.categories)) {
+    // Contains invalid, so remove all invalids
+    const validQuestions: string[] = jsonData.categories.filter(
+      (type: string) => questionType.qTypes.includes(type),
+    );
+    if (validQuestions.length == 0) {
+      validJson.categories = questionType.qTypes;
+    } else {
+      validJson.categories = validQuestions;
+    }
+  } else {
+    validJson.categories = questionType.qTypes;
+  }
+
+  return validJson;
 }
