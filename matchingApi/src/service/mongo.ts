@@ -5,6 +5,7 @@ import mongoose, { ConnectOptions } from 'mongoose';
 
 import Config from '../dataStructs/config';
 import { queueInfoModel } from '../mongoModels/queueInfo';
+import { socketInfoModel } from '../mongoModels/socketInfo';
 
 /** Represents the connection to a mongo instance. */
 export default class mongoClient {
@@ -53,19 +54,28 @@ export default class mongoClient {
     const userID = { userID: '0' };
     const options = { upsert: true, setDefaultsOnInsert: true };
 
-    const updateFields = {
+    const updateFieldsQueue = {
       difficulty: 'Easy',
       categories: ['String'],
       language: 'Nil',
       expireAt: new Date(Date.now() + 60 * 1000 * 60),
     };
 
+    const updateFieldsSocket = {
+      socketID: '0',
+      expireAt: new Date(Date.now() + 60 * 1000 * 60),
+    };
+
     // Insert into DB
     await Promise.all([
-      queueInfoModel.updateOne(userID, updateFields, options),
+      queueInfoModel.updateOne(userID, updateFieldsQueue, options),
+      socketInfoModel.updateOne(userID, updateFieldsSocket, options),
     ]);
 
     // Delete them because served purpose
-    Promise.all([queueInfoModel.deleteOne(userID)]);
+    Promise.all([
+      queueInfoModel.deleteOne(userID),
+      queueInfoModel.deleteOne(userID),
+    ]);
   }
 }

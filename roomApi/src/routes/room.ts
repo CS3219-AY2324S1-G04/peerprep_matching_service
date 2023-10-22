@@ -88,7 +88,7 @@ router.post('/create', async (req, res) => {
 router.delete('/:rid', async (req, res) => {
   try {
     const room = await roomInfoModel
-      .findOneAndDelete({ roomID: req.params.rid })
+      .findOneAndDelete({ _id: req.params.rid })
       .exec();
 
     if (room) {

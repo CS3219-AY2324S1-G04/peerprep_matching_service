@@ -13,14 +13,19 @@ const config = Config.getInstance();
 const socketInfoSchema = new Schema({
   userID: { type: String, unique: true },
   socketID: { type: String },
-  expireAt: { type: Date, default: Date.now() + config.mongoQueueExpiry },
+  expireAt: {
+    type: Date,
+    default: new Date(Date.now() + config.mongoQueueExpiry),
+  },
 });
 
 export interface socketInfo extends Document {
   userID: string;
-  socketID: String;
+  socketID: string;
   expireAt: Date;
 }
+
+// queueInfoSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
 export const socketInfoModel = mongoose.model<socketInfo>(
   'socketInfo',

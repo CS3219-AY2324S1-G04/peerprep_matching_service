@@ -9,6 +9,7 @@ import {
   parseJson,
 } from '../helper/validator';
 import { queueInfo, queueInfoModel } from '../mongoModels/queueInfo';
+import { Socks } from '../service/sockets';
 
 const router = express.Router();
 const config = Config.getInstance();
@@ -98,6 +99,17 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
         console.log(`${uid} has same preference as ${samePrefUser.userID}`);
         // Deal with socket here Todo:
         // samePrefUser.socketID <<<<<< tell socket to close
+        // how though
+
+        try {
+          const io = Socks.getInstance();
+          io.in(samePrefUser.userID).emit('success', {
+            message: 'You are matched',
+          });
+          io.in(samePrefUser.userID).disconnectSockets(true);
+        } catch (error) {
+          console.error('Unable to inform other party that room matched');
+        }
 
         const matchedValues: string[] = samePrefUser.categories.filter(
           (value) => properJson.categories.includes(value),
@@ -163,7 +175,7 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
             difficulty: properJson.difficulty,
             categories: properJson.categories,
             language: properJson.language,
-            socketID: undefined,
+            expireAt: new Date(Date.now() + config.mongoQueueExpiry),
           }).save();
           res.status(200).json({
             status: '200',
@@ -191,10 +203,9 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
 
 // Have FE to ask directly room-service
 async function inRoom(uid: string) {
-  const url =
-    config.roomServiceURI + '/room-service/room/user' + '/?user-id=' + uid;
-
   try {
+    const url =
+      config.roomServiceURI + '/room-service/room/user' + '/?user-id=' + uid;
     const result = await axios.post(url);
     return { status: '200', message: 'In Room', data: result.data };
   } catch (error) {

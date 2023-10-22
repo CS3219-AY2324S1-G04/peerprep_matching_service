@@ -19,7 +19,10 @@ const queueInfoSchema = new Schema({
   },
   categories: [String],
   language: String,
-  expireAt: { type: Date, default: Date.now() + config.mongoQueueExpiry },
+  expireAt: {
+    type: Date,
+    default: new Date(Date.now() + config.mongoQueueExpiry),
+  },
 });
 
 export interface queueInfo extends Document {
