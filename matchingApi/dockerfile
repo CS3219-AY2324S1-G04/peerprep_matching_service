@@ -7,6 +7,4 @@ WORKDIR /peerprep_matching_service_api
 
 RUN npm install --omit=dev -y
 
-EXPOSE 3000
-
 CMD node main.js

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import express, { NextFunction, Request, Response } from 'express';
 
 import Config from '../dataStructs/config';
@@ -14,7 +15,11 @@ const config = Config.getInstance();
  * @param next Next
  * @returns Bad request if not JSON or in the correct format. Else proceed.
  */
-export function jsonValidator(req: Request, res: Response, next: NextFunction) {
+export function middleJsonValidator(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   if (req.is('json')) {
     const jsonData = req.body;
     if (isValidJson(jsonData)) {
@@ -27,33 +32,8 @@ export function jsonValidator(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-/**
- * Middleman function to check if session-token exist.
- * If exist: proceed
- * Not exist: return 401 unauthorized
- *
- * Note: This middleware does not perform actual user authentication and is reliant on user service.
- *
- * TODO: link up with user-service
- *
- * @param config An instance of the application configuration.
- * @returns Express middleware function
- */
-export function sessionCookieValidator(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
-  const sessionID = req.cookies['session-token'];
-  if (sessionID) {
-    // check for valid sessionID by contacting user service here
-    next();
-  } else {
-    return res.status(401).json({ message: 'You are not logged in.' });
-  }
-}
-
-function isValidJson(jsonData: any): boolean {
+// passed by reference
+export function isValidJson(jsonData: any): boolean {
   /**
    * A valid json is one with
     {
@@ -64,36 +44,142 @@ function isValidJson(jsonData: any): boolean {
    */
   if (
     jsonData.difficulty == undefined ||
-    jsonData.questions == undefined ||
-    jsonData.language == undefined
+    jsonData.categories == undefined // ||
+    // jsonData.language == undefined
   ) {
     // console.log('undefined');
     return false;
   }
 
-  if (!['easy', 'medium', 'hard'].includes(jsonData.difficulty)) {
+  if (!['Easy', 'Medium', 'Hard'].includes(jsonData.difficulty)) {
     return false;
   }
 
-  if (!languageType.lTypes.includes(jsonData.language)) {
-    return false;
-  }
+  // if (!languageType.lTypes.includes(jsonData.language)) {
+  //   return false;
+  // }
 
-  if (!Array.isArray(jsonData.questions)) {
+  if (!Array.isArray(jsonData.categories)) {
     return false;
   }
 
   // Contains invalid, so remove all invalids
-  const validQuestions: string[] = jsonData.questions.filter((type: string) =>
+  const validQuestions: string[] = jsonData.categories.filter((type: string) =>
     questionType.qTypes.includes(type),
   );
 
   // Somehow sent is length = 0
   if (validQuestions.length == 0) {
-    jsonData.questions = questionType.qTypes;
+    // jsonData.questions = questionType.qTypes;
+    return false;
   } else {
-    jsonData.questions = validQuestions;
+    jsonData.categories = validQuestions;
   }
 
   return true;
+}
+
+export async function middleIsValidSession(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const session = req.cookies['session-token'];
+
+  if (!session) {
+    return res.status(401).end();
+  }
+
+  const url = config.userServiceURI + '/user-service/user/identity';
+  const param = '?session-token=' + session;
+
+  try {
+    await axios
+      .get(url + param)
+      .then((response) => {
+        const data = response.data;
+        const uid = data['user-id'];
+        if (response.data) {
+          res.locals['user-id'] = uid;
+          next();
+        } else {
+          console.error('Warning: user service not acting as expected.');
+          res.status(500).end();
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          res.status(401).end();
+        } else if (error.response && error.response.status === 500) {
+          console.error('Warning: user service returning 500');
+          res.status(500).end();
+        } else {
+          console.error(error);
+          res.status(500).end();
+        }
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).end();
+  }
+}
+
+// should just convert that into an interface
+export function parseJson(jsonData: any): {
+  difficulty: string;
+  categories: string[];
+  language: string;
+} {
+  /**
+   * A valid json is one with
+    {
+        "difficulty" : "Easy", // Note Case cap
+        "questions" : [<any from questionType>],
+        "language" : "Nil" // Currently fixed to Nil
+    }
+   */
+  let validJson: {
+    difficulty: string;
+    categories: string[];
+    language: string;
+  } = {
+    difficulty: '',
+    categories: [],
+    language: 'Nil',
+  };
+
+  // No difficulty or wrong difficulty
+  if (
+    jsonData.difficulty == undefined ||
+    !['Easy', 'Medium', 'Hard'].includes(jsonData.difficulty)
+  ) {
+    validJson.difficulty = 'Hard';
+  } else {
+    validJson.difficulty = jsonData.difficulty;
+  }
+
+  // No language or wrong language
+  if (
+    jsonData.language == undefined ||
+    !languageType.lTypes.includes(jsonData.language)
+  ) {
+    validJson.language = 'Nil';
+  }
+
+  // No questions or wrong questions. Select all.
+  if (Array.isArray(jsonData.categories)) {
+    // Contains invalid, so remove all invalids
+    const validQuestions: string[] = jsonData.categories.filter(
+      (type: string) => questionType.qTypes.includes(type),
+    );
+    if (validQuestions.length == 0) {
+      validJson.categories = questionType.qTypes;
+    } else {
+      validJson.categories = validQuestions;
+    }
+  } else {
+    validJson.categories = questionType.qTypes;
+  }
+
+  return validJson;
 }

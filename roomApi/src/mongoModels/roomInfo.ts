@@ -12,25 +12,25 @@ const config = Config.getInstance();
 // If doing this why not just use postgresql for a relational database?
 // Schema allows validation rules for fields, such as allowed data types and value ranges.
 const roomInfoSchema = new Schema({
-  roomID: { type: String, unique: true },
   userIDs: [String],
-  title: { type: String, require: true },
-  description: { type: String, require: true },
-  expireAt: { type: Date, default: Date.now() + config.mongoRoomExpiry },
+  questionID: String,
+  expireAt: {
+    type: Date,
+    default: new Date(Date.now() + config.mongoRoomExpiry),
+  },
 });
 
 // Documents are the basic unit in mongoDB.
 // A collection contains documents, and the documents don't need to have the same fields
 export interface roomInfo extends Document {
-  roomID: string;
   userIDs: string[];
-  title: string;
-  description: string;
+  questionID: String;
   expireAt: Date;
 }
 
 roomInfoSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
+// Pre cannot deal with TTL deletes, only way to use pre is to delete from mongo
 // roomInfoSchema.pre('remove', async function (next) {
 //   await UserToRoomIndex.deleteMany({ roomInfoId: this._id });
 //   next();

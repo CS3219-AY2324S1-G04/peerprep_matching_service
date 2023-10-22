@@ -1,45 +1,88 @@
 version: "3"
 services:
-  # MongoDB
-  mongo:
-    container_name: "mongodb"
-    image: mongo:latest
-    restart: always
-    environment:
-      MONGO_PORT: ${MONGO_PORT}
-      MONGO_DB: ${MONGO_DB}
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS}
+  # Matching Service
+  # peerprep_matching_service_mongo:
+  #   container_name: "mongodb"
+  #   image: mongo:latest
+  #   restart: always
+  #   environment:
+  #     MONGO_PORT: ${MS_MONGO_PORT}
+  #     MONGO_DB: ${MS_MONGO_DB}
+  #     MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_USER}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_PASS}
 
-    networks:
-      - network1
-    ports:
-      - "${MONGO_PORT}:27017"
+  #   networks:
+  #     - peerprep
 
-  # Node.js Application
-  matching_service_api:
+  #   ports:
+  #     - "${MONGO_PORT}:27017"
+
+  # peerprep_matching_service_api:
+  #   container_name:
+  #     - peerprep_matching_service_api
+  #   depends_on:
+  #     - peerprep_matching_service_mongo
+  #     - peerprep_question_service_api
+  #   image: matching_service
+  #   build: ./api
+  #   restart: always
+  #   environment:
+  #     MONGO_HOST: "mongo" #name of service
+  #     MONGO_PORT: ${MONGO_PORT}
+  #     MONGO_DB: ${MONGO_DB}
+  #     MONGO_USER: ${MONGO_USER}
+  #     MONGO_PASS: ${MONGO_PASS}
+  #     QUEUE_EXPIRY: ${QUEUE_EXPIRY}
+  #     EXPRESS_PORT: ${EXPRESS_PORT}
+  #     SERVICE_USER_HOST: "" #Todo: name of service
+  #     SERVICE_QUESTION_HOST: "" #Todo: name of service
+
+  #   networks:
+  #     - peerprep
+  #   ports:
+  #     - "${EXPRESS_PORT}:3000"
+
+  # Room Service
+
+  peerprep_room_service_api:
+    container_name: "peerprep_room_service_api"
     depends_on:
-      - mongo
-    image: matching_service
+      - peerprep_room_service_mongo
+    image: room_service
     build: ./api
     restart: always
     environment:
-      MONGO_HOST: "mongo" #name of service
-      MONGO_PORT: ${MONGO_PORT}
-      MONGO_DB: ${MONGO_DB}
-      MONGO_USER: ${MONGO_USER}
-      MONGO_PASS: ${MONGO_PASS}
-      QUEUE_EXPIRY: ${QUEUE_EXPIRY}
-      PRE_SHARED_KEY: ${PRE_SHARED_KEY}
-      EXPRESS_PORT: ${EXPRESS_PORT}
-      SERVICE_USER_HOST: "" #Todo: name of service
-      SERVICE_QUESTION_HOST: "" #Todo: name of service
+      MONGO_HOST: peerprep_room_service_mongo
+      MONGO_PORT: ${RS_MONGO_PORT}
+      MONGO_DB: ${RS_MONGO_DB}
+      MONGO_USER: ${RS_MONGO_USER}
+      MONGO_PASS: ${RS_MONGO_PASS}
+      ROOM_EXPIRY: ${RS_ROOM_EXPIRY}
+      EXPRESS_PORT: ${RS_EXPRESS_PORT}
+      SERVICE_QUESTION_HOST: peerprep_question_service_api #Todo: name of service
+      SERVICE_QUESTION_PORT: ${SERVICE_QUESTION_PORT}
+      SERVICE_USER_HOST: user_service_api #Todo: name of service
+      SERVICE_USER_PORT: "${SERVICE_USER_PORT}" #Todo: name of service
 
     networks:
-      - network1
+      - peerprep
+
     ports:
-      - "${EXPRESS_PORT}:3000"
+      - "${RS_EXPRESS_PORT}:${RS_EXPRESS_PORT}"
+
+  peerprep_room_service_mongo:
+    container_name: "peerprep_room_service_mongo"
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_PORT: ${RS_MONGO_PORT}
+      MONGO_DB: ${RS_MONGO_DB}
+      MONGO_INITDB_ROOT_USERNAME: ${RS_MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${RS_MONGO_PASS}
+
+    networks:
+      - peerprep
 
 networks:
-  network1:
-    name: peerprep
+  peerprep:
+    external: true

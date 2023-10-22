@@ -4,9 +4,8 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 
 import Config from '../dataStructs/config';
-import { queueEntityModel } from '../mongoModels/queueEntity';
-import { roomInfoModel } from '../mongoModels/roomInfo';
-import { userMatchModel } from '../mongoModels/userMatch';
+import { queueInfoModel } from '../mongoModels/queueInfo';
+import { socketInfoModel } from '../mongoModels/socketInfo';
 
 /** Represents the connection to a mongo instance. */
 export default class mongoClient {
@@ -55,37 +54,28 @@ export default class mongoClient {
     const userID = { userID: '0' };
     const options = { upsert: true, setDefaultsOnInsert: true };
 
-    const updateFields = {
-      roomID: '0',
-      timeStamp: new Date(new Date().getTime() - 1000 * 60 * 60),
+    const updateFieldsQueue = {
+      difficulty: 'Easy',
+      categories: ['String'],
+      language: 'Nil',
+      expireAt: new Date(Date.now() + 60 * 1000 * 60),
     };
 
-    const updateFieldsPref = {
-      difficulty: 'easy',
-      preferences: [],
-      language: 'c',
-      timeStamp: new Date(new Date().getTime() - 1000 * 60 * 60),
-    };
-
-    const updateRoomInfo = {
-      userID: ['0', '0'],
-      difficulty: 'easy',
-      question: 'String',
-      timeStamp: new Date(new Date().getTime() - 1000 * 60 * 60),
+    const updateFieldsSocket = {
+      socketID: '0',
+      expireAt: new Date(Date.now() + 60 * 1000 * 60),
     };
 
     // Insert into DB
     await Promise.all([
-      queueEntityModel.updateOne(userID, updateFieldsPref, options),
-      userMatchModel.updateOne(userID, updateFields, options),
-      roomInfoModel.updateOne({ roomID: '0' }, updateRoomInfo, options),
+      queueInfoModel.updateOne(userID, updateFieldsQueue, options),
+      socketInfoModel.updateOne(userID, updateFieldsSocket, options),
     ]);
 
     // Delete them because served purpose
     Promise.all([
-      queueEntityModel.deleteOne(userID),
-      userMatchModel.deleteOne(userID),
-      roomInfoModel.deleteOne({ roomID: '0' }),
+      queueInfoModel.deleteOne(userID),
+      queueInfoModel.deleteOne(userID),
     ]);
   }
 }

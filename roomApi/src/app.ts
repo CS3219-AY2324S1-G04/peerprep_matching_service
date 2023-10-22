@@ -6,8 +6,7 @@ import cookieParser from 'cookie-parser';
 import express, { Request, Response } from 'express';
 
 import Config from './dataStructs/config';
-import { _deleteQueue } from './helper/mongoGarbageCollection';
-import rooms from './routes/room-service/rooms';
+import room from './routes/room';
 import mongoClient from './service/mongo';
 
 /**
@@ -54,7 +53,7 @@ export default class App {
   }
 
   private routes(): void {
-    this.app.use('/room-service', rooms);
+    this.app.use('/room-service/room', room);
   }
 
   private ttl(): void {}
