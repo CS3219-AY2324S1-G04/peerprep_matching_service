@@ -4,7 +4,6 @@ import { Server } from 'socket.io';
 
 import Config from '../dataStructs/config';
 import { queueInfoModel } from '../mongoModels/queueInfo';
-import { socketInfoModel } from '../mongoModels/socketInfo';
 
 export class Socks {
   private static config = Config.getInstance();
@@ -26,8 +25,10 @@ export class Socks {
 
   public static otherUserMatch(uid: string) {
     const io = Socks.instance;
+    console.log('Recieve UID', uid);
 
-    io.in(uid).emit('success', {
+    // this doesnt send to room?
+    io.in(uid).emit('timeout', {
       message: 'You are matched',
     });
     io.in(uid).disconnectSockets(true);
@@ -136,21 +137,19 @@ export class Socks {
       }
 
       // Disconnect
+      console.log('Socket Room: ', userID);
       io.in(userID).emit('error', {
         message: 'Cannot have multiple tabs open!',
       });
-      io.in(userID).disconnectSockets(true);
+      await io.in(userID).disconnectSockets(true);
       socket.join(userID);
 
       // userID
       const inQueue = await queueInfoModel.findOne({ userID: userID }).exec();
 
       if (inQueue) {
-        console.log(inQueue.expireAt.getTime());
-        console.log(new Date().getTime());
         const timeTillExpire =
           inQueue.expireAt.getTime() - new Date(Date.now()).getTime();
-        console.log('Expires at: ' + timeTillExpire);
 
         if (timeTillExpire < 0) {
           // TIL: mongo expireAt runs at 1 minute cycles.
@@ -163,10 +162,10 @@ export class Socks {
         }
 
         setTimeout(() => {
-          console.log('User was timed out!');
           socket.emit('timeout', {
             message: 'Time out! Please send your request again!',
           });
+
           queueInfoModel
             .findOneAndDelete({ _id: inQueue.id }, { useFindAndModify: true })
             .exec();

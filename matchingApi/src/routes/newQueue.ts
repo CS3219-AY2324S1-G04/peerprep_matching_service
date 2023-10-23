@@ -102,11 +102,8 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
         // how though
 
         try {
-          const io = Socks.getInstance();
-          io.in(samePrefUser.userID).emit('success', {
-            message: 'You are matched',
-          });
-          io.in(samePrefUser.userID).disconnectSockets(true);
+          Socks.otherUserMatch(samePrefUser.userID);
+          console.log('Sent to socks');
         } catch (error) {
           console.error('Unable to inform other party that room matched');
         }
