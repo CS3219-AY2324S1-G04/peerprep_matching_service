@@ -4,7 +4,6 @@ import { Server } from 'socket.io';
 
 import Config from '../dataStructs/config';
 import { queueInfoModel } from '../mongoModels/queueInfo';
-import { socketInfoModel } from '../mongoModels/socketInfo';
 
 export class Socks {
   private static config = Config.getInstance();
@@ -29,7 +28,7 @@ export class Socks {
     console.log('Recieve UID', uid);
 
     // this doesnt send to room?
-    io.in(uid).emit('Timeout', {
+    io.in(uid).emit('timeout', {
       message: 'You are matched',
     });
     io.in(uid).disconnectSockets(true);
