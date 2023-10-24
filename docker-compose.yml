@@ -49,7 +49,7 @@ services:
     depends_on:
       - peerprep_room_service_mongo
     image: room_service
-    build: ./api
+    build: ./roomApi
     restart: always
     environment:
       MONGO_HOST: peerprep_room_service_mongo

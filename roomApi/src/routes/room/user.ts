@@ -32,7 +32,12 @@ router.get('/', isValidSessionCookie, async (req, res) => {
       res.status(200).json({
         status: 200,
         message: 'user already has a room',
-        data: undefined,
+        data: {
+          'room-id': room._id,
+          users: room.userIDs,
+          'questions-id': room.questionID,
+          'expire-at': room.expireAt,
+        }
       });
     } else {
       res.status(404).json({
@@ -80,11 +85,14 @@ router.post('/', isValidSessionParam, async (req, res) => {
       .exec();
     if (room) {
       res.status(200).json({
-        'room-id': room._id,
-        users: room.userIDs,
-        'questions-id': room.questionID,
-        'expire-at': room.expireAt,
-      });
+        status: 200,
+        message: 'user already has a room',
+        data: {
+          'room-id': room._id,
+          users: room.userIDs,
+          'questions-id': room.questionID,
+          'expire-at': room.expireAt,
+        }});
     } else {
       res.status(404).json({
         status: 404,
