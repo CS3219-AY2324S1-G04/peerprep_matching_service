@@ -3,7 +3,7 @@
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json",
-    "tsconfigRootDir": "./roomApi"
+    "tsconfigRootDir": "./matchingMongoInit"
   },
   "plugins": ["@typescript-eslint", "prettier"],
   "extends": [

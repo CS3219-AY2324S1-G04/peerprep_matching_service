@@ -9,7 +9,7 @@ import {
   parseJson,
 } from '../helper/validator';
 import { queueInfo, queueInfoModel } from '../mongoModels/queueInfo';
-import { Socks } from '../service/sockets';
+// import { Socks } from '../service/sockets';
 
 const router = express.Router();
 const config = Config.getInstance();
@@ -19,28 +19,29 @@ router.get('/', middleIsValidSession, async (req, res) => {
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
-  if (checkQueue.status == '200') {
+  if (checkQueue.status == 200) {
     res.status(200).json({
       status: checkQueue.status,
       message: checkQueue.message,
       data: checkQueue.data,
     });
-  } else if (checkQueue.status == '404') {
+  } else if (checkQueue.status == 404) {
     const checkRoom = await inRoom(uid);
-    if (checkRoom.status == '200') {
-      res.status(200).json({
-        status: checkRoom.status,
+    if (checkRoom.status == 200) {
+      // 303 See other.
+      res.status(303).json({
+        status: 303,
         message: 'In room!',
         data: undefined,
       });
-    } else if (checkRoom.status == '404') {
-      res.status(404).json({
+    } else if (checkRoom.status == 404) {
+      res.status(checkRoom.status).json({
         status: checkRoom.status,
-        message: 'Not in room or queue' + checkRoom.message,
-        data: checkQueue.data, // Room does not give u what to post
+        message: 'Not in room or queue',
+        data: checkQueue.data, // checkRoom does not give u what to post
       });
     } else {
-      res.status(500).json({
+      res.status(checkRoom.status).json({
         status: checkRoom.status,
         message: checkRoom.message,
         data: checkRoom.data,
@@ -48,7 +49,7 @@ router.get('/', middleIsValidSession, async (req, res) => {
     }
   } else {
     // i actually don't know what checkQueue brings you here
-    res.status(500).json({
+    res.status(checkQueue.status).json({
       status: checkQueue.status,
       message: checkQueue.message,
       data: checkQueue.data,
@@ -62,23 +63,23 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
 
   const checkQueue = await inQueue(uid);
 
-  // Todo: Socket here
-  if (checkQueue.status == '200') {
-    res.status(200).json({
-      status: checkQueue.status,
+  if (checkQueue.status == 200) {
+    // Already in queue
+    res.status(409).json({
+      status: 409,
       message: checkQueue.message,
       data: checkQueue.data,
     });
-  } else if (checkQueue.status == '404') {
+  } else if (checkQueue.status == 404) {
     // not in queue, but in room?
     const checkRoom = await inRoom(uid);
-    if (checkRoom.status == '200') {
-      res.status(200).json({
-        status: checkRoom.status,
+    if (checkRoom.status == 200) {
+      res.status(303).json({
+        status: 303,
         message: checkRoom.message,
         data: checkRoom.data,
       });
-    } else if (checkRoom.status == '404') {
+    } else if (checkRoom.status == 404) {
       // Desireable outcome
       // not in room nor in queue - pull this out into new middleman
 
@@ -96,24 +97,24 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
 
       // I found same preference
       if (samePrefUser) {
-        console.log(`${uid} has same preference as ${samePrefUser.userID}`);
+        // console.log(`${uid} has same preference as ${samePrefUser.userID}`);
         // Deal with socket here Todo:
         // samePrefUser.socketID <<<<<< tell socket to close
         // how though
 
-        try {
-          Socks.otherUserMatch(samePrefUser.userID);
-          console.log('Sent to socks');
-        } catch (error) {
-          console.error('Unable to inform other party that room matched');
-        }
+        // try {
+        //   Socks.otherUserMatch(samePrefUser.userID);
+        //   console.log('Sent to socks');
+        // } catch (error) {
+        //   console.error('Unable to inform other party that room matched');
+        // }
 
         const matchedValues: string[] = samePrefUser.categories.filter(
           (value) => properJson.categories.includes(value),
         );
 
         const baseUrl =
-          config.questionServiceURI +
+          config.questionServiceURL +
           '/question-service/question-matching/question?';
         const complexityParam = `complexity=${properJson.difficulty}`;
         const categoryParam = matchedValues
@@ -128,12 +129,12 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
 
         if (questionID.id == null) {
           res
-            .status(parseInt(questionID.json.status))
+            .status(questionID.json.status)
             .send(questionID.json.message);
         }
 
         // Close socket here Todo: Socket
-        const roomBaseUrl = config.roomServiceURI + '/room-service/room/create';
+        const roomBaseUrl = config.roomServiceURL + '/room-service/room/create';
         const roomCreateJson = {
           users: [uid.toString(), samePrefUser.userID],
           'question-id': questionID.id,
@@ -142,7 +143,7 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
           console.log('Creating Room');
           const roomRes = await axios.post(roomBaseUrl, roomCreateJson);
           res.status(200).json({
-            status: '200',
+            status: 200,
             message: 'Room Created',
             data: roomRes.data,
           });
@@ -151,13 +152,13 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
             console.log(error);
             res.status(error.response.status).json({
               status: error.response.status,
-              message: 'Server Error AAA',
+              message: 'Server Error',
               data: error.response.data,
             });
           } else {
             console.error(error);
             res.status(500).json({
-              status: '500',
+              status: 500,
               message: 'Sever Error',
               data: undefined,
             });
@@ -167,7 +168,7 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
       // I found no same preference.
       else {
         try {
-          const newUserInQueue = new queueInfoModel({
+          new queueInfoModel({
             userID: uid,
             difficulty: properJson.difficulty,
             categories: properJson.categories,
@@ -175,23 +176,29 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
             expireAt: new Date(Date.now() + config.mongoQueueExpiry),
           }).save();
           res.status(200).json({
-            status: '200',
+            status: 200,
             message: 'Open Sockets',
             data: undefined,
           });
         } catch (error) {
           console.error(error);
           res.status(500).json({
-            status: '500',
+            status: 500,
             message: 'Server Error while adding to queue',
             data: undefined,
           });
         }
       }
+    } else {
+      res.status(500).json({
+        status: 500,
+        message: 'Server Error while checking room state',
+        data: undefined,
+      });
     }
   } else {
     res.status(500).json({
-      status: '500',
+      status: 500,
       message: 'Server Error while checking room state',
       data: undefined,
     });
@@ -202,42 +209,24 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
 async function inRoom(uid: string) {
   try {
     const url =
-      config.roomServiceURI + '/room-service/room/user' + '/?user-id=' + uid;
+      config.roomServiceURL + '/room-service/room/user' + '/?user-id=' + uid;
     const result = await axios.post(url);
-    return { status: '200', message: 'In Room', data: result.data };
+    return { status: 200, message: 'In Room', data: result.data };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         if (error.response.status == 404) {
-          return { status: '404', message: 'Not In Room', data: undefined };
+          return { status: error.response.status, message: 'Not In Room', data: undefined };
         }
       }
     }
     console.error(error);
     return {
-      status: '500',
+      status: 500,
       message: 'Server Error while checking room state',
       data: undefined,
     };
   }
-
-  // .then((response) => {
-  //   res
-  //     .status(200)
-  //     .json({ message: 'Already in room' + response.data['room-id'] });
-  // })
-  // .catch((error) => {
-  //   if (error.response.status == 404) {
-  //     // next();
-  //     console.log('ho');
-  //     res.status(417).end();
-  //   } else {
-  //     console.error(error);
-  //     res
-  //       .status(500)
-  //       .json({ message: 'Room Service returned with server error.' });
-  //   }
-  // });
 }
 
 // do the same thing but two different expectation
@@ -247,14 +236,14 @@ async function inQueue(uid: string) {
 
     if (userInQueue) {
       return {
-        status: '200',
-        message: 'Open Sockets',
+        status: 200,
+        message: 'In Queue!',
         data: userInQueue.toJSON,
       };
     } else {
       return {
-        status: '404',
-        message: 'Check room or join queue',
+        status: 404,
+        message: 'Not in Queue',
         data: {
           'question-type': questionType.qTypes,
           difficulty: ['Easy', 'Medium', 'Hard'],
@@ -263,16 +252,15 @@ async function inQueue(uid: string) {
     }
   } catch (error) {
     console.log(error);
-    return { status: '500', message: 'Server error', data: undefined };
+    return { status: 500, message: 'Server error', data: undefined };
   }
 }
-
+////////////////////////////////////////////////////////////
 async function getQuestion(
   baseUrl: string,
   complexityParam: string,
   categoryParam: string,
 ) {
-  let questionID;
   try {
     // The expectations of what i recieve back from this link
     // as of October 21, 2023 is either 200 with the contents
@@ -286,7 +274,7 @@ async function getQuestion(
       return {
         id: getQuestion.data.data._id,
         json: {
-          status: '200',
+          status: 200,
           message: 'Obtained Question',
           data: undefined,
         },
@@ -299,7 +287,7 @@ async function getQuestion(
         return {
           id: getQuestionAny.data.data._id,
           json: {
-            status: '200',
+            status: 200,
             message: 'Obtained Question',
             data: undefined,
           },
@@ -316,7 +304,7 @@ async function getQuestion(
           return {
             id: null,
             json: {
-              status: '400',
+              status: 400,
               message: 'Bad request while retrieving questions',
               data: undefined,
             },
@@ -328,7 +316,7 @@ async function getQuestion(
     return {
       id: null,
       json: {
-        status: '500',
+        status: 500,
         message: 'Sever Error while getting questions',
         data: undefined,
       },

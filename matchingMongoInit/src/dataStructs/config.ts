@@ -4,19 +4,14 @@
 
 /** Represents the app's configs. */
 export default class Config {
-  // Variable names that are found in environment
-  private static readonly envVarMongoHost: string = 'MONGO_HOST';
-  private static readonly envVarMongoPort: string = 'MONGO_PORT';
-  private static readonly envVarMongoUser: string = 'MONGO_USER';
-  private static readonly envVarMongoPass: string = 'MONGO_PASS';
-  private static readonly envVarMongoDB: string = 'MONGO_DB';
-
-  private static readonly envVarMongoRoomExpiry: string = 'ROOM_EXPIRY';
-
-  private static readonly envVarExpressPort: string = 'EXPRESS_PORT';
-
-  private static readonly envUserServiceHost: string = 'SERVICE_USER_HOST';
-  private static readonly envUserServicePort: string = 'SERVICE_USER_PORT';
+  /** Variable names that are found in environment  */
+  private static readonly envVarMongoHost: string = 'MS_MONGO_HOST';
+  private static readonly envVarMongoPort: string = 'MS_MONGO_PORT';
+  private static readonly envVarMongoUser: string = 'MS_MONGO_USER';
+  private static readonly envVarMongoPass: string = 'MS_MONGO_PASS';
+  private static readonly envVarMongoDB: string = 'MS_MONGO_DB';
+  
+  private static readonly envVarMongoQueueExpiry: string = 'QUEUE_EXPIRY';
 
   private static instance: Config | undefined;
 
@@ -26,12 +21,15 @@ export default class Config {
   public readonly mongoUser: string;
   public readonly mongoPass: string;
   public readonly mongoDB: string;
+  public readonly mongoQueueExpiry: number;
 
-  public readonly mongoRoomExpiry: number;
-  public readonly expressPort: number;
-
-  public readonly userServiceURI: string | undefined;
-
+  private readonly defaultMongoHost: string = '127.0.0.1';
+  private readonly defaultMongoPort: number = 27017;
+  private readonly defaultMongoUser: string = '';
+  private readonly defaultMongoPass: string = '';
+  private readonly defaultMongoDB: string = 'matchingservice' ;
+  private readonly defaultMongoQueueExpiry: number = 30 * 1000;
+  
   /**
    * Constructs a Config and assigns to each field, the value stored in their
    * corresponding environment variable. If an environment variable does not
@@ -42,21 +40,15 @@ export default class Config {
   private constructor(env: NodeJS.ProcessEnv = process.env) {
     // Mongo
     this.mongoHost =
-      Config._parseString(env[Config.envVarMongoHost]) ?? '127.0.0.1';
-    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? 27018;
-    this.mongoUser = Config._parseString(env[Config.envVarMongoUser]) ?? '';
-    this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? '';
+      Config._parseString(env[Config.envVarMongoHost]) ?? this.defaultMongoHost;
+    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? this.defaultMongoPort;
+    this.mongoUser = Config._parseString(env[Config.envVarMongoUser]) ?? this.defaultMongoUser;
+    this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? this.defaultMongoPass;
     this.mongoDB =
-      Config._parseString(env[Config.envVarMongoDB]) ?? 'roomservice';
-    this.mongoRoomExpiry =
-      Config._parseInt(env[Config.envVarMongoRoomExpiry]) ?? 1 * 60 * 1000;
+      Config._parseString(env[Config.envVarMongoDB]) ?? this.defaultMongoDB;
+    this.mongoQueueExpiry =
+      Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? this.defaultMongoQueueExpiry;
 
-    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 9002;
-    const userServiceHost =
-      Config._parseString(env[Config.envUserServiceHost]) ?? '127.0.0.1';
-    const userServicePort =
-      Config._parseInt(env[Config.envUserServicePort]) ?? 3000;
-    this.userServiceURI = `http://${userServiceHost}:${userServicePort}`;
   }
 
   public static getInstance(): Config {

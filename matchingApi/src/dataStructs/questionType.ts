@@ -31,7 +31,7 @@ export default class questionType {
   public static async update(): Promise<void> {
     // Temporary placeholder until able to connect to question service
 
-    const baseUrl = config.questionServiceURI + '/question-service/categories';
+    const baseUrl = config.questionServiceURL + '/question-service/categories';
 
     try {
       const list_of_questions = await axios.get(baseUrl);

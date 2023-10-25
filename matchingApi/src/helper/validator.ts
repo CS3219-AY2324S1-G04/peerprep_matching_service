@@ -25,10 +25,10 @@ export function middleJsonValidator(
     if (isValidJson(jsonData)) {
       next();
     } else {
-      return res.status(400).json({ message: 'Incorrect Json format' });
+      return res.status(400).json({ status: 400, message: 'Incorrect Json format', data: undefined });
     }
   } else {
-    return res.status(400).json({ message: 'Json expected.' });
+    return res.status(400).json({ status: 400, message: 'Json Required', data: undefined });
   }
 }
 
@@ -87,10 +87,14 @@ export async function middleIsValidSession(
   const session = req.cookies['session-token'];
 
   if (!session) {
-    return res.status(401).end();
+    return res.status(401).json({
+      status: 401,
+      message: "Missing session-token cookie",
+      data: undefined
+    })
   }
 
-  const url = config.userServiceURI + '/user-service/user/identity';
+  const url = config.userServiceURL + '/user-service/user/identity';
   const param = '?session-token=' + session;
 
   try {
@@ -104,23 +108,43 @@ export async function middleIsValidSession(
           next();
         } else {
           console.error('Warning: user service not acting as expected.');
-          res.status(500).end();
+          res.status(500).json({
+            status: 500,
+            message: "User-servicer sent an arrow",
+            data: undefined
+          });
         }
       })
       .catch((error) => {
         if (error.response && error.response.status === 401) {
-          res.status(401).end();
+          res.status(401).json({
+            status: 401,
+            message: "Unauthorized",
+            data: undefined
+          });
         } else if (error.response && error.response.status === 500) {
           console.error('Warning: user service returning 500');
-          res.status(500).end();
+          res.status(500).json({
+            status: 500,
+            message: "User service sending 500",
+            data: undefined
+          })
         } else {
           console.error(error);
-          res.status(500).end();
+          res.status(500).json({
+            status: 500,
+            message: "User service sending 500",
+            data: undefined
+          });
         }
       });
   } catch (error) {
     console.error(error);
-    res.status(500).end();
+    res.status(500).json({
+      status: 500,
+      message: "User service sending 500",
+      data: undefined
+    });
   }
 }
 

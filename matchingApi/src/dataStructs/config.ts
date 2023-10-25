@@ -5,14 +5,14 @@
 /** Represents the app's configs. */
 export default class Config {
   /** Variable names that are found in environment  */
-  private static readonly envVarMongoHost: string = 'MONGO_HOST';
-  private static readonly envVarMongoPort: string = 'MONGO_PORT';
-  private static readonly envVarMongoUser: string = 'MONGO_USER';
-  private static readonly envVarMongoPass: string = 'MONGO_PASS';
-  private static readonly envVarMongoDB: string = 'MONGO_DB';
+  private static readonly envVarMongoHost: string = 'MS_MONGO_HOST';
+  private static readonly envVarMongoPort: string = 'MS_MONGO_PORT';
+  private static readonly envVarMongoUser: string = 'MS_MONGO_USER';
+  private static readonly envVarMongoPass: string = 'MS_MONGO_PASS';
+  private static readonly envVarMongoDB: string = 'MS_MONGO_DB';
+  
   private static readonly envVarMongoQueueExpiry: string = 'QUEUE_EXPIRY';
-
-  private static readonly envVarExpressPort: string = 'EXPRESS_PORT';
+  private static readonly envVarExpressPort: string = 'MS_EXPRESS_PORT';
 
   private static readonly envUserServiceHost: string = 'SERVICE_USER_HOST';
   private static readonly envUserServicePort: string = 'SERVICE_USER_PORT';
@@ -35,9 +35,22 @@ export default class Config {
 
   public readonly expressPort: number;
 
-  public readonly userServiceURI: string;
-  public readonly questionServiceURI: string;
-  public readonly roomServiceURI: string;
+  public readonly userServiceURL: string;
+  public readonly questionServiceURL: string;
+  public readonly roomServiceURL: string;
+
+  private readonly defaultMongoHost: string = '127.0.0.1';
+  private readonly defaultMongoPort: number = 27017;
+  private readonly defaultMongoUser: string = '';
+  private readonly defaultMongoPass: string = '';
+  private readonly defaultMongoDB: string = 'matchingservice' ;
+  private readonly defaultMongoQueueExpiry: number = 30 * 1000;
+  private readonly defaultExpressPort: number = 9003;
+  
+  private readonly defaultUserServiceURL: string = '127.0.0.1';
+  private readonly defaultQuestionServiceURL: string = '127.0.0.1';
+  private readonly defaultRoomServiceURL: string = '127.0.0.1';
+
 
   /**
    * Constructs a Config and assigns to each field, the value stored in their
@@ -49,36 +62,73 @@ export default class Config {
   private constructor(env: NodeJS.ProcessEnv = process.env) {
     // Mongo
     this.mongoHost =
-      Config._parseString(env[Config.envVarMongoHost]) ?? '127.0.0.1';
-    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? 27018;
-    this.mongoUser = Config._parseString(env[Config.envVarMongoUser]) ?? '';
-    this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? '';
+      Config._parseString(env[Config.envVarMongoHost]) ?? this.defaultMongoHost;
+    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? this.defaultMongoPort;
+    this.mongoUser = Config._parseString(env[Config.envVarMongoUser]) ?? this.defaultMongoUser;
+    this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? this.defaultMongoPass;
     this.mongoDB =
-      Config._parseString(env[Config.envVarMongoDB]) ?? 'matchingservice';
+      Config._parseString(env[Config.envVarMongoDB]) ?? this.defaultMongoDB;
     this.mongoQueueExpiry =
-      Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? 30 * 1000;
+      Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? this.defaultMongoQueueExpiry;
 
-    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? 3001;
+    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? this.defaultExpressPort;
+
+    // To uncomment once ready for docker
+    // let _a = env[Config.envUserServiceHost]
+    // let _b = env[Config.envUserServicePort]
+    // if (_a !== undefined && _b !== undefined) {
+    //   let _c = Config._parseString(_a)
+    //   let _d = _b
+    //   if (_c !== undefined && _d !== undefined) {
+    //     this.userServiceURL = `http://${_c}:${_d}`;
+    //   } else {
+    //     throw new Error("User service is not defined well in the envs")
+    //   }
+    // }
+
+    // _a = env[Config.envQuestionServiceHost]
+    // _b = env[Config.envQuestionServicePort]
+    // if (_a !== undefined && _b !== undefined) {
+    //   let _c = Config._parseString(_a)
+    //   let _d = _b
+    //   if (_c !== undefined && _d !== undefined) {
+    //     this.questionServiceURL = `http://${_c}:${_d}`;
+    //   } else {
+    //     throw new Error("Question service is not defined well in the envs")
+    //   }
+    // }
+
+    // _a = env[Config.envRoomServiceHost]
+    // _b = env[Config.envRoomServicePort]
+    // if (_a !== undefined && _b !== undefined) {
+    //   let _c = Config._parseString(_a)
+    //   let _d = _b
+    //   if (_c !== undefined && _d !== undefined) {
+    //     this.roomServiceURL = `http://${_c}:${_d}`;
+    //   } else {
+    //     throw new Error("Room service is not defined well in the envs")
+    //   }
+    // }
 
     const userServiceHost =
-      Config._parseString(env[Config.envUserServiceHost]) ?? '127.0.0.1';
+      Config._parseString(env[Config.envUserServiceHost]) ?? 'localhost';
     const userServicePort =
       Config._parseInt(env[Config.envUserServicePort]) ?? 9000;
-    this.userServiceURI = `http://${userServiceHost}:${userServicePort}`;
+    this.userServiceURL = `http://${userServiceHost}:${userServicePort}`;
 
     const questionServiceHost =
       Config._parseString(env[Config.envQuestionServiceHost]) ?? 'localhost';
     const questionServicePort =
       Config._parseInt(env[Config.envQuestionServicePort]) ?? 9001;
 
-    this.questionServiceURI = `http://${questionServiceHost}:${questionServicePort}`;
+    this.questionServiceURL = `http://${questionServiceHost}:${questionServicePort}`;
 
     const roomServiceHost =
       Config._parseString(env[Config.envRoomServiceHost]) ?? 'localhost';
     const roomServicePort =
       Config._parseInt(env[Config.envRoomServicePort]) ?? 9002;
 
-    this.roomServiceURI = `http://${roomServiceHost}:${roomServicePort}`;
+    this.roomServiceURL = `http://${roomServiceHost}:${roomServicePort}`;
   }
 
   public static getInstance(): Config {
