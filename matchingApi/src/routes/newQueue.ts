@@ -177,8 +177,12 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
           }).save();
           res.status(200).json({
             status: 200,
-            message: 'Open Sockets',
-            data: undefined,
+            message: 'Joined Queue!',
+            data: {
+              difficulty : properJson.difficulty,
+              categories: properJson.categories,
+              // language: properJson.language
+            },
           });
         } catch (error) {
           console.error(error);

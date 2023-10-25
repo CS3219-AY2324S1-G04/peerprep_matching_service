@@ -37,9 +37,9 @@ export function isValidJson(jsonData: any): boolean {
   /**
    * A valid json is one with
     {
-        "difficulty" : "easy",
+        "difficulty" : "Easy",
         "questions" : [<any from questionType>],
-        "language" : <any from languageType>
+        // language" : <any from languageType>
     }
    */
   if (
