@@ -32,7 +32,7 @@ export default class App {
 
     this.mongo = new mongoClient();
 
-    this.middleMan();
+    this.middleMan(config);
     this.routes();
 
     // Last item
@@ -56,18 +56,25 @@ export default class App {
 
   }
 
-  private middleMan(): void {
+  private middleMan(config: Config): void {
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
+
+    // if (config.isDevEnv) {
+      this.enableDevFeatures();
+    // }
+  }
+
+  private routes(): void {
+    this.app.use('/matching-service/queue', newQueue);
+  }
+
+  private enableDevFeatures(): void {
     this.app.use(
       cors({
         origin: new RegExp('http://localhost:[0-9]+'),
         credentials: true,
       }),
     );
-  }
-
-  private routes(): void {
-    this.app.use('/matching-service/queue', newQueue);
   }
 }

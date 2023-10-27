@@ -22,6 +22,7 @@ services:
     build: ./matchingApi
     restart: always
     environment:
+      NODE_ENV: ${NODE_ENV}
       MS_MONGO_HOST: peerprep_matching_service_mongo
       MS_MONGO_PORT: ${MS_MONGO_PORT}
       MS_MONGO_DB: ${MS_MONGO_DB}
