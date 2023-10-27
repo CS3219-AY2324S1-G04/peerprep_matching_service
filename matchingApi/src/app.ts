@@ -49,28 +49,22 @@ export default class App {
    * Starts listening and activates ttl.
    */
   public startServer(): void {
-    const corsOptions = {
-      origin:new RegExp('http://localhost:[0-9]+'), // Regular expression to match localhost with any port number
-      credentials: true,
-    };
-
-    this.app.use(cors(corsOptions));
 
     this.app.listen(this.port, () => {
       console.log(`Matching-Service is running on port ${this.port}`);
     });
 
-    // const server = http.createServer(this.app);
-    // server.listen(this.socketPort, () => {
-    //   console.log(`Socket is running on port ${this.socketPort}`);
-    // });
-    // const io = Socks.getInstance(server);
-    // createSocket(server);
   }
 
   private middleMan(): void {
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
+    this.app.use(
+      cors({
+        origin: new RegExp('http://localhost:[0-9]+'),
+        credentials: true,
+      }),
+    );
   }
 
   private routes(): void {
