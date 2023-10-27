@@ -83,8 +83,18 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
       // Desireable outcome
       // not in room nor in queue - pull this out into new middleman
 
-      const jsonData = req.body;
-      const properJson = parseJson(jsonData);
+      // const jsonData = req.body;
+
+      const difficulty: string = req.query.difficulty as string;
+      const categories: Array<string>  = req.query
+          .categories as Array<string>;
+      
+      const filter = {
+        difficulty: difficulty,
+        categories: categories,
+      };
+
+      const properJson = parseJson(filter);
 
       // Now have issue of What if I match before socket is open?
       // Means i need to create socket before joining queue
