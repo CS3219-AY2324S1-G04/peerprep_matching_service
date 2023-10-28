@@ -33,6 +33,8 @@ export default class questionType {
 
     const baseUrl = config.questionServiceURL + '/question-service/categories';
 
+    console.log('fired')
+
     try {
       const list_of_questions = await axios.get(baseUrl);
 

@@ -63,6 +63,8 @@ export function isValidJson(jsonData: any): boolean {
     return false;
   }
 
+  questionType.update();
+
   // Contains invalid, so remove all invalids
   const validQuestions: string[] = jsonData.categories.filter((type: string) =>
     questionType.qTypes.includes(type),

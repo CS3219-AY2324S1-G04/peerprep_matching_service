@@ -10,6 +10,7 @@ export default class Config {
   private static readonly envVarMongoUser: string = 'MS_MONGO_USER';
   private static readonly envVarMongoPass: string = 'MS_MONGO_PASS';
   private static readonly envVarMongoDB: string = 'MS_MONGO_DB';
+  private static readonly envVarMongoCollection: string = 'MS_MONGO_COLLECTION';
   
   private static readonly envVarMongoQueueExpiry: string = 'QUEUE_EXPIRY';
   private static readonly envVarExpressPort: string = 'MS_EXPRESS_PORT';
@@ -33,6 +34,7 @@ export default class Config {
   public readonly mongoUser: string;
   public readonly mongoPass: string;
   public readonly mongoDB: string;
+  public readonly mongoCollection: string;
   public readonly mongoQueueExpiry: number;
 
   public readonly expressPort: number;
@@ -44,12 +46,14 @@ export default class Config {
   public readonly isDevEnv: boolean;
 
   private readonly defaultMongoHost: string = '127.0.0.1';
-  private readonly defaultMongoPort: number = 27017;
-  private readonly defaultMongoUser: string = '';
-  private readonly defaultMongoPass: string = '';
-  private readonly defaultMongoDB: string = 'matchingservice' ;
+  private readonly defaultMongoPort: number = 27018;
+  private readonly defaultMongoUser: string = 'user';
+  private readonly defaultMongoPass: string = 'password';
+  private readonly defaultMongoDB: string = 'matchinginfo' ;
+  private readonly defaultMongoCollection: string = 'queueinfo';
+
   private readonly defaultMongoQueueExpiry: number = 30 * 1000;
-  private readonly defaultExpressPort: number = 9003;
+  private readonly defaultExpressPort: number = 9002;
   
   private readonly defaultUserServiceURL: string = '127.0.0.1';
   private readonly defaultQuestionServiceURL: string = '127.0.0.1';
@@ -71,6 +75,10 @@ export default class Config {
     this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? this.defaultMongoPass;
     this.mongoDB =
       Config._parseString(env[Config.envVarMongoDB]) ?? this.defaultMongoDB;
+    
+    this.mongoCollection =
+      Config._parseString(env[Config.envVarMongoCollection]) ?? this.defaultMongoCollection;
+
     this.mongoQueueExpiry =
       Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? this.defaultMongoQueueExpiry;
 
@@ -79,64 +87,64 @@ export default class Config {
     this.isDevEnv = env[Config.appModeEnvVar] === 'development';
 
     // To uncomment once ready for docker
-    let _a = env[Config.envUserServiceHost]
-    let _b = env[Config.envUserServicePort]
-    if (_a !== undefined && _b !== undefined) {
-      let _c = Config._parseString(_a)
-      let _d = _b
-      if (_c !== undefined && _d !== undefined) {
-        this.userServiceURL = `http://${_c}:${_d}`;
-      } else {
-        throw new Error("User service is not defined well in the envs")
-      }
-    } else {
-      throw new Error("User service is not defined well in the envs") }
+    // let _a = env[Config.envUserServiceHost]
+    // let _b = env[Config.envUserServicePort]
+    // if (_a !== undefined && _b !== undefined) {
+    //   let _c = Config._parseString(_a)
+    //   let _d = _b
+    //   if (_c !== undefined && _d !== undefined) {
+    //     this.userServiceURL = `http://${_c}:${_d}`;
+    //   } else {
+    //     throw new Error("User service is not defined well in the envs")
+    //   }
+    // } else {
+    //   throw new Error("User service is not defined well in the envs") }
 
-    _a = env[Config.envQuestionServiceHost]
-    _b = env[Config.envQuestionServicePort]
-    if (_a !== undefined && _b !== undefined) {
-      let _c = Config._parseString(_a)
-      let _d = _b
-      if (_c !== undefined && _d !== undefined) {
-        this.questionServiceURL = `http://${_c}:${_d}`;
-      } else {
-        throw new Error("Question service is not defined well in the envs")
-      }
-    }else {
-      throw new Error("Question service is not defined well in the envs") }
+    // _a = env[Config.envQuestionServiceHost]
+    // _b = env[Config.envQuestionServicePort]
+    // if (_a !== undefined && _b !== undefined) {
+    //   let _c = Config._parseString(_a)
+    //   let _d = _b
+    //   if (_c !== undefined && _d !== undefined) {
+    //     this.questionServiceURL = `http://${_c}:${_d}`;
+    //   } else {
+    //     throw new Error("Question service is not defined well in the envs")
+    //   }
+    // }else {
+    //   throw new Error("Question service is not defined well in the envs") }
 
-    _a = env[Config.envRoomServiceHost]
-    _b = env[Config.envRoomServicePort]
-    if (_a !== undefined && _b !== undefined) {
-      let _c = Config._parseString(_a)
-      let _d = _b
-      if (_c !== undefined && _d !== undefined) {
-        this.roomServiceURL = `http://${_c}:${_d}`;
-      } else {
-        throw new Error("Room service is not defined well in the envs")
-      }
-    }else {
-      throw new Error("Room service is not defined well in the envs") }
+    // _a = env[Config.envRoomServiceHost]
+    // _b = env[Config.envRoomServicePort]
+    // if (_a !== undefined && _b !== undefined) {
+    //   let _c = Config._parseString(_a)
+    //   let _d = _b
+    //   if (_c !== undefined && _d !== undefined) {
+    //     this.roomServiceURL = `http://${_c}:${_d}`;
+    //   } else {
+    //     throw new Error("Room service is not defined well in the envs")
+    //   }
+    // }else {
+    //   throw new Error("Room service is not defined well in the envs") }
 
-    // const userServiceHost =
-    //   Config._parseString(env[Config.envUserServiceHost]) ?? 'localhost';
-    // const userServicePort =
-    //   Config._parseInt(env[Config.envUserServicePort]) ?? 9000;
-    // this.userServiceURL = `http://${userServiceHost}:${userServicePort}`;
+    const userServiceHost =
+      Config._parseString(env[Config.envUserServiceHost]) ?? 'localhost';
+    const userServicePort =
+      Config._parseInt(env[Config.envUserServicePort]) ?? 9000;
+    this.userServiceURL = `http://${userServiceHost}:${userServicePort}`;
 
-    // const questionServiceHost =
-    //   Config._parseString(env[Config.envQuestionServiceHost]) ?? 'localhost';
-    // const questionServicePort =
-    //   Config._parseInt(env[Config.envQuestionServicePort]) ?? 9001;
+    const questionServiceHost =
+      Config._parseString(env[Config.envQuestionServiceHost]) ?? 'localhost';
+    const questionServicePort =
+      Config._parseInt(env[Config.envQuestionServicePort]) ?? 9001;
 
-    // this.questionServiceURL = `http://${questionServiceHost}:${questionServicePort}`;
+    this.questionServiceURL = `http://${questionServiceHost}:${questionServicePort}`;
 
-    // const roomServiceHost =
-    //   Config._parseString(env[Config.envRoomServiceHost]) ?? 'localhost';
-    // const roomServicePort =
-    //   Config._parseInt(env[Config.envRoomServicePort]) ?? 9002;
+    const roomServiceHost =
+      Config._parseString(env[Config.envRoomServiceHost]) ?? 'localhost';
+    const roomServicePort =
+      Config._parseInt(env[Config.envRoomServicePort]) ?? 9003;
 
-    // this.roomServiceURL = `http://${roomServiceHost}:${roomServicePort}`;
+    this.roomServiceURL = `http://${roomServiceHost}:${roomServicePort}`;
   }
 
   public static getInstance(): Config {

@@ -94,7 +94,14 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
         categories: categories,
       };
 
+      console.log(req.body)
+      console.log(req.query.difficulty)
+      console.log(req.query.complexity)
+      console.log(req.query.categories)
+
       const properJson = parseJson(filter);
+
+      console.log(properJson)
 
       // Now have issue of What if I match before socket is open?
       // Means i need to create socket before joining queue
