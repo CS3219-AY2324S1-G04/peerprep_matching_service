@@ -32,9 +32,9 @@ services:
       MS_MONGO_ADMIN_PASS: ${MS_MONGO_ADMIN_PASS}
 
       # Note: The following account will be created for services to aces via 
-      # mongodb://MONGO_PEERPREP_USER:MONGO_PEERPREP_PASS@MS_MONGO_HOST:MONGO_PORT/MONGO_DB
-      MONGO_PEERPREP_USER: ${MS_MONGO_USER}
-      MONGO_PEERPREP_PASS: ${MS_MONGO_PASS}
+      # mongodb://MS_MONGO_USER:MS_MONGO_PASS@MS_MONGO_HOST:MONGO_PORT/MONGO_DB
+      MS_MONGO_USER: ${MS_MONGO_USER}
+      MS_MONGO_PASS: ${MS_MONGO_PASS}
       
       MS_MONGO_DB: ${MS_MONGO_DB}
       MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
@@ -83,10 +83,6 @@ services:
       
     ports:
       - "${MS_EXPRESS_PORT}:${MS_EXPRESS_PORT}"
-
-
-
-
 
 networks:
   peerprep:
