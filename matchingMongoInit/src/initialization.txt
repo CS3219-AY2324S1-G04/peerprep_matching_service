@@ -1,0 +1,46 @@
+/**
+ * The following should give you an idea as to what 
+ * this script is doing
+ */
+
+matchingdb = db.getSiblingDB('matchinginfo')
+
+if (matchingdb.getUser("user") == null) {  
+matchingdb.createUser({ user: "user", pwd: "password", roles: [ "readWrite" ] })
+}
+
+matchingdb.createCollection("queueinfo")
+// matchingdb.createCollection("queueinfo", {
+//     validator: {
+//         $jsonSchema: {
+//             bsonType: "object",
+//             required: ["userID"],
+//             properties: {
+//                 userID: {
+//                     bsonType: "string",
+//                     description: "must be a string"
+//                 },
+//                 difficulty: {
+//                     bsonType: "string",
+//                     enum: ["Easy", "Medium", "Hard"],
+//                     description: "must be one of 'Easy', 'Medium', 'Hard'"
+//                 },
+//                 categories: {
+//                     bsonType: "array",
+//                     items: { bsonType: "string" },
+//                     description: "must be an array of strings"
+//                 },
+//                 language: {
+//                     bsonType: "string",
+//                     description: "must be a string"
+//                 },
+//                 expireAt: {
+//                     bsonType: "date",
+//                     description: "must be a date"
+//                 }
+//             }
+//         }
+//     }
+// });
+
+matchingdb.queueinfo.createIndex({ expireAt: 1 }, { expireAfterSeconds: 0 });

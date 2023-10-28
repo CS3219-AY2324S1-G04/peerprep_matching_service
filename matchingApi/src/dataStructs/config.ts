@@ -89,7 +89,8 @@ export default class Config {
       } else {
         throw new Error("User service is not defined well in the envs")
       }
-    }
+    } else {
+      throw new Error("User service is not defined well in the envs") }
 
     _a = env[Config.envQuestionServiceHost]
     _b = env[Config.envQuestionServicePort]
@@ -101,7 +102,8 @@ export default class Config {
       } else {
         throw new Error("Question service is not defined well in the envs")
       }
-    }
+    }else {
+      throw new Error("Question service is not defined well in the envs") }
 
     _a = env[Config.envRoomServiceHost]
     _b = env[Config.envRoomServicePort]
@@ -113,7 +115,8 @@ export default class Config {
       } else {
         throw new Error("Room service is not defined well in the envs")
       }
-    }
+    }else {
+      throw new Error("Room service is not defined well in the envs") }
 
     // const userServiceHost =
     //   Config._parseString(env[Config.envUserServiceHost]) ?? 'localhost';

@@ -1,6 +1,8 @@
+import Config from "./dataStructs/config";
+import mongoClient from "./service/mongo";
+
 /**
  * @file Entry point to the program.
  */
-import mongoClient from './service/mongo';
 
-const mongo = new mongoClient();
+new mongoClient().run(new Config(process.env))

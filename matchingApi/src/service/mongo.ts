@@ -4,8 +4,6 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 
 import Config from '../dataStructs/config';
-import { queueInfoModel } from '../mongoModels/queueInfo';
-import { socketInfoModel } from '../mongoModels/socketInfo';
 
 /** Represents the connection to a mongo instance. */
 export default class mongoClient {
@@ -23,6 +21,7 @@ export default class mongoClient {
     if (config.mongoUser != '' && config.mongoPass != '') {
       uri += `${config.mongoUser}:${config.mongoPass}@`;
     }
+    uri += 'username:password@'
     uri += `${config.mongoHost}:${config.mongoPort}/${config.mongoDB}`;
 
     console.log(`Attempting to connect to ${uri}`);

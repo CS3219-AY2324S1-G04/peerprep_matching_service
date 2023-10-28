@@ -5,34 +5,67 @@ Handles the queuing and matching of users.
 ## Quickstart Guide
 
 1. Clone this repository.
-2. Build the docker images by running: `./run.bat`
-3. Modify the `.env` file as per needed. Refer to [Environment Variables](#environment-variables) for a list of configs.
+2. Build the npm images by running: `./run.bat`
+3. Modify the `.env` file as per needed. Refer to [Environment Variables](#environment-variables) for the variables we suggest changing.
 4. Create the docker containers by running: `docker compose up`
-
-room-service has its own read me, check it out over there!
-
----
+5. If you are using , initialize MongoDB by starting MongoDB and running the mongo initializer container.
+6. If you have an existing MongoDB, please ensure that you edit the environment variables to allow the API to access the database.
 
 ## Environment Variables
 
 ### MONGO
 
+#### My Own Mongo Server
+
+If you are using your own mongo server, please change the following:
+
 - `MONGO_USER` - Username of the Mongo database
 - `MONGO_PASS` - Password of the Mongo database
 - `MONGO_PORT` - Port of the Mongo database
-- `MONGO_DB` - Name of the database.
+- `MS_MONGO_DB` - Database to write to
+
+And ensure that `MONGO_USER` `MONGO_PASS` has read-write access to `MS_MONGO_DB` on your server. You may see `initialization.txt` for what mongo-init does.
+
+If you are not using simple credentials, you will need to edit the source code. 
+
+#### Using the provided Mongo Container
+
+If you are planning to use the provided docker container mongo server, please change the following:
+
+** CRITICAL TO CHANGE **
+- `MONGO_USER` - Username of the Mongo database
+- `MONGO_PASS` - Password of the Mongo database
+- `MS_MONGO_ADMIN_USER` - Username of the Mongo admin account
+- `MS_MONGO_ADMIN_PASS` - Password of the Mongo admin account
+  
 
 ### APP
 
-- `EXPRESS_PORT` - Port of the Express server
-- `PRE_SHARED_KEY` - Used for communicating between services.
-- `QUEUE_EXPIRY` - TTL in seconds for users in the queue but are not matched
+- `NODE_ENV` - Set this to an empty string
+- `MS_EXPRESS_PORT` - Port for the API server
+- `QUEUE_EXPIRY` - TTL for the document. Due to this using Mongo's auto delete, collection may take up to one minute to get deleted. 
 
 ## REST API
 
-### Join a user to the queue
+### Check if the user is in the queue
 
-> [POST] `/queue`
+> [GET] `/matching-service/queue/`
+
+**Cookies**
+
+- `session_token` - Session token.
+
+**Returns**
+
+- `200` - { message: "In queue" } 
+- `303` - { message: "In room" } 
+- `401` - { message: "Not authorized" }
+- `404` - { message: "Not in queue", data : { difficulty : string[], categories : string[], language : string[] } }
+- `500` - { message: "Sever Error" }
+
+### Join the user to the queue
+
+> [POST] `/matching-service/queue/`
 
 **Cookies**
 
@@ -40,56 +73,40 @@ room-service has its own read me, check it out over there!
 
 **Parameters**
 
-Json formatted preferences
+- `complexity` - The complexity of the question
+- `categories` - The categories of the question - Can be multiple
+- `languages` - The programming language of the question
 
-```
-{
-  "difficulty" : "easy",
-  "questions" : [<any from questionType>],
-  "language" : <any from languageType>
-}
-```
+**Returns**
 
-Example:
+- `200` - { message: "Joined queue" }. 
+- `303` - { message: "In room" }
+- `401` - { message: "Not authorized" }
+- `409` - { message: "Already in queue" }
+- `500` - { message: "Sever Error" }
 
-```
-{
-  "difficulty" : "medium",
-  "questions" : ["Strings", "Arrays"],
-  "language" : "c"
-}
-```
+**Examples**
 
-Validation is handled by `validator.ts`, currently references `languageType.ts` and `questionType.ts`.
+Complexity and Categories provided
+> `/matching-service/queue/join?complexity=Easy&categories[]=Strings&categories[]=Arrays`
+Will lead to paring with people of the same complexity and category.
 
-Currently only 3 types of difficulty is accepted.
+No Complexity and no Categories provided, or bad request sent
+> `/matching-service/queue/join`
+Will lead to paring with people of the a randomized complexity and any category.
 
-### Check the properties of a room given room ID
+### Remove the user to the queue
 
-> [Get] `/match/room/:rid`
+> [DELETE] `/matching-service/queue/`
 
-This is primarily for collaboration service.
+**Cookies**
 
-**Path Parameters**
+- `session_token` - Session token.
 
-- `rid` - ID of the room to query
+### Remove a particular user from the queue
 
-### Find out which room a particular user is in.
+> [DELETE] `/matching-service/queue/:uid`
 
-> [Get] `/match/room/:uid`
+**Cookies**
 
-This is primarily for collaboration service.
-
-**Path Parameters**
-
-- `uid` - User ID of the room to query
-
-### Delete match
-
-> [DELETE] `/match/room/:rid`
-
-This is primarily for collaboration service.
-
-**Path Parameters**
-
-- `rid` - ID of the room to delete
+- `session_token` - Session token.
