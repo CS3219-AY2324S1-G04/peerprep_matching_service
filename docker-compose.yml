@@ -56,19 +56,22 @@ services:
     build: ./matchingApi
     restart: always
     environment:
+      # API
       NODE_ENV: ${NODE_ENV}
+      MS_EXPRESS_PORT: ${MS_EXPRESS_PORT}
 
+      # DB
       MS_MONGO_HOST: peerprep_matching_service_mongo
       MS_MONGO_PORT: ${MS_MONGO_PORT}
-      MS_MONGO_DB: ${MS_MONGO_DB}
-      MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
-
       MS_MONGO_USER: ${MS_MONGO_USER}
       MS_MONGO_PASS: ${MS_MONGO_PASS}
 
-      QUEUE_EXPIRY: ${QUEUE_EXPIRY}
-      MS_EXPRESS_PORT: ${MS_EXPRESS_PORT}
+      MS_MONGO_DB: ${MS_MONGO_DB}
+      MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
 
+      QUEUE_EXPIRY: ${QUEUE_EXPIRY}
+
+      # Other Services
       SERVICE_USER_HOST: user_service_api
       SERVICE_USER_PORT: ${SERVICE_USER_PORT}
 

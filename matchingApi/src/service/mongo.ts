@@ -21,10 +21,9 @@ export default class mongoClient {
     if (config.mongoUser != '' && config.mongoPass != '') {
       uri += `${config.mongoUser}:${config.mongoPass}@`;
     }
-    uri += 'username:password@'
     uri += `${config.mongoHost}:${config.mongoPort}/${config.mongoDB}`;
 
-    console.log(`Attempting to connect to ${uri}`);
+    console.log(`Attempting to connect to ${config.mongoHost}:${config.mongoPort}/${config.mongoDB}`);
 
     this.connection = null;
     this.connect(uri);
