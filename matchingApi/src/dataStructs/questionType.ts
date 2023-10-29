@@ -2,60 +2,74 @@
  * @file Defines {@link questionType}.
  */
 import axios from 'axios';
-
 import Config from './config';
-
-const config = Config.getInstance();
 
 /**
  * Question Type should contain the question types stored in the Question service.
  */
 export default class questionType {
-  static qTypes: string[] = [
-    'Algorithms',
-    'Arrays',
-    'Bit Manipulation',
-    'Data Structure',
-    'Data Structures',
-    'Dynamic Programming',
-    'Recursion',
-    'Searching',
-    'Sorting',
-    'Strings',
+
+  private static config = Config.get();
+  // private static lastUpdate = new Date(Date.now());
+
+  private static _questionTypes: string[] = [
+    "Array",
+    "Binary Search",
+    "Bit Manipulation",
+    "Breadth-First Search",
+    "Depth-First Search",
+    "Design",
+    "Divide and Conquer",
+    "Doubly-Linked List",
+    "Dynamic Programming",
+    "Graph",
+    "Greedy",
+    "Hash Function",
+    "Hash Table",
+    "Heap (Priority Queue)",
+    "Linked List",
+    "Math",
+    "Memoization",
+    "Merge Sort",
+    "Monotonic Queue",
+    "Queue",
+    "Recursion",
+    "Rolling Hash",
+    "Simulation",
+    "Sliding Window",
+    "Stack",
+    "String",
+    "Topological Sort",
+    "Two Pointers"
   ];
 
-  // Todo: Connect to Question Service to update the question types. And provide a way to access this.
+  public static get(): string[] {
+    return questionType._questionTypes;
+  }
+
   /**
    * Queries question service for the type of questions that are supported.
    */
-  public static async update(): Promise<void> {
-    // Temporary placeholder until able to connect to question service
-
-    const baseUrl = config.questionServiceURL + '/question-service/categories';
-
-    console.log('fired')
+  public async update(): Promise<void> {
+    const baseUrl = questionType.config.questionServiceURL + '/question-service/categories';
 
     try {
-      const list_of_questions = await axios.get(baseUrl);
-
-      if (list_of_questions.status === 500) {
-        console.error(
-          'Querying question server returned error',
-          list_of_questions.status,
-        );
-        return;
-      } else if (list_of_questions.status === 200) {
-        // Able to talk to URI (Returns success) but returns no data
-        if (list_of_questions.data.data == undefined) {
-          console.error('Querying question server turned undefined results');
-          return;
-        } else {
-          questionType.qTypes = list_of_questions.data.data;
-        }
+      const query = await axios.get(baseUrl);
+      if (query.data.data) {
+        questionType._questionTypes = query.data.data;
+        console.log('Updated Questions')
+      } else {
+        throw new Error("question-service at /question-service/categories does not return expected results");
       }
     } catch (error) {
-      // Axios throws AxiosError immediately on 401 and 500 instead of accepting as normal
-      console.error(error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Questions Type: Error while contacting question-server");
+        console.error(error)
+      
+      } else {
+        console.error("Unknown server error");
+        console.error(error);
+      }
     }
   }
 }

@@ -9,10 +9,11 @@ import {
   parseJson,
 } from '../helper/validator';
 import { queueInfo, queueInfoModel } from '../mongoModels/queueInfo';
+import languageType from '../dataStructs/languageType';
 // import { Socks } from '../service/sockets';
 
 const router = express.Router();
-const config = Config.getInstance();
+const config = Config.get();
 
 // Am I in Queue? Am I in Room?
 router.get('/', middleIsValidSession, async (req, res) => {
@@ -94,14 +95,7 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
         categories: categories,
       };
 
-      console.log(req.body)
-      console.log(req.query.difficulty)
-      console.log(req.query.complexity)
-      console.log(req.query.categories)
-
       const properJson = parseJson(filter);
-
-      console.log(properJson)
 
       // Now have issue of What if I match before socket is open?
       // Means i need to create socket before joining queue
@@ -266,8 +260,9 @@ async function inQueue(uid: string) {
         status: 404,
         message: 'Not in Queue',
         data: {
-          'question-type': questionType.qTypes,
           difficulty: ['Easy', 'Medium', 'Hard'],
+          'categories': questionType.get(),
+          'language': languageType.get(),
         },
       };
     }

@@ -7,12 +7,14 @@ import Config from '../dataStructs/config';
 /** Represents the connection to a mongo instance. */
 export default class mongoClient {
 
-  public run(config: Config) {
+  public run(config: Config): void {
     mongoose.connect(`mongodb://${config.mongoAdmUser}:${config.mongoAdmPass}@${config.mongoHost}:${config.mongoPort}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useCreateIndex: true,
       serverSelectionTimeoutMS: 30000,
+      // autoReconnect: false, // Disable automatic reconnection
+      // idleTimeout: 10000,   // Disconnect after 10 seconds of inactivity
     } as ConnectOptions);
 
     const db = mongoose.connection;

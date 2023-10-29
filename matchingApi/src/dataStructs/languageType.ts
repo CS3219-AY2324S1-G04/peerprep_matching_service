@@ -1,17 +1,52 @@
 /**
  * @file Defines {@link languageType}.
  */
+import axios from 'axios';
+import Config from './config';
 
 /**
  * Language Type should contain the programming languages stored in the Question service.
  */
 export default class languageType {
-  static lTypes: string[] = ['Nil', 'C', 'Python', 'Java'];
+
+  private static config = Config.get()
+  // private static lastUpdate = new Date(Date.now());
+
+  private static _languageTypes: string[] = ["cpp", "java", "python", "python3", "c",
+    "csharp", "javascript", "typescript", "php", "swift", "kotlin", "dart", "golang", "ruby", "scala", "rust", "racket", "erlang", "elixir"];
+
+  public static get(): string[] {
+    return languageType._languageTypes;
+  }
 
   /**
    * Queries question service for the languages that are supported.
    */
-  public static update(): void {
-    languageType.lTypes = languageType.lTypes;
+  public async update(): Promise<void> {
+
+    const baseUrl = languageType.config.questionServiceURL + '/question-service/languages';
+
+    try {
+      const query = await axios.get(baseUrl);
+      if (query.data.data) {
+        let langSlugs: string[] = query.data.data.map((item: { 'language': string, 'langSlug': string }) => item['langSlug'])
+        // langSlugs.push("none")
+
+        languageType._languageTypes = langSlugs;
+        console.log('Updated Languages')
+      } else {
+        throw new Error("question-service at /question-service/languages does not return expected results");
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Language Type: Error while contacting question-server");
+        console.error(error)
+
+      } else {
+        console.error("Unknown server error");
+        console.error(error);
+      }
+    }
+
   }
 }

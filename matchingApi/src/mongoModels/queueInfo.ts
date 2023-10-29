@@ -8,7 +8,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 import Config from '../dataStructs/config';
 
-const config = Config.getInstance();
+const config = Config.get();
 
 const queueInfoSchema = new Schema({
   userID: { type: String, unique: true },

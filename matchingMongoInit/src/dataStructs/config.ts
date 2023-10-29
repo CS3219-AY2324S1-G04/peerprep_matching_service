@@ -5,17 +5,17 @@
 /** Represents the app's configs. */
 export default class Config {
   /** Variable names that are found in environment  */
-  private readonly envVarMongoHost: string = 'MS_MONGO_HOST';
-  private readonly envVarMongoPort: string = 'MS_MONGO_PORT';
+  private static readonly envVarMongoHost: string = 'MS_MONGO_HOST';
+  private static readonly envVarMongoPort: string = 'MS_MONGO_PORT';
 
-  private readonly envVarMongoAdminUser: string = 'MS_MONGO_ADMIN_USER';
-  private readonly envVarMongoAdminPass: string = 'MS_MONGO_ADMIN_PASS';
+  private static readonly envVarMongoAdminUser: string = 'MS_MONGO_ADMIN_USER';
+  private static readonly envVarMongoAdminPass: string = 'MS_MONGO_ADMIN_PASS';
 
-  private readonly envVarMongoUser: string = 'MS_MONGO_USER';
-  private readonly envVarMongoPass: string = 'MS_MONGO_PASS';
+  private static readonly envVarMongoUser: string = 'MS_MONGO_USER';
+  private static readonly envVarMongoPass: string = 'MS_MONGO_PASS';
 
-  private readonly envVarMongoDB: string = 'MS_MONGO_DB';
-  private readonly envVarMongoCollection: string = 'MS_MONGO_COLLECTION';
+  private static readonly envVarMongoDB: string = 'MS_MONGO_DB';
+  private static readonly envVarMongoCollection: string = 'MS_MONGO_COLLECTION';
 
 
   /** Copies from Environment and save into these variable names. */
@@ -46,14 +46,14 @@ export default class Config {
       this.mongoAdmUser = 'admin'
       this.mongoAdmPass = 'password'
     } else {
-      this.mongoHost = this.getEnvAsString(env, this.envVarMongoHost);
-      this.mongoPort = this.getEnvAsInt(env, this.envVarMongoPort);
-      this.mongoUser = this.getEnvAsString(env, this.envVarMongoUser);
-      this.mongoPass = this.getEnvAsString(env, this.envVarMongoPass);
-      this.mongoDB = this.getEnvAsString(env, this.envVarMongoDB);
-      this.mongoCollection = this.getEnvAsString(env, this.envVarMongoCollection)
-      this.mongoAdmUser = this.getEnvAsString(env, this.envVarMongoAdminUser);
-      this.mongoAdmPass = this.getEnvAsString(env, this.envVarMongoAdminPass);
+      this.mongoHost = this.getEnvAsString(env, Config.envVarMongoHost);
+      this.mongoPort = this.getEnvAsInt(env, Config.envVarMongoPort);
+      this.mongoUser = this.getEnvAsString(env, Config.envVarMongoUser);
+      this.mongoPass = this.getEnvAsString(env, Config.envVarMongoPass);
+      this.mongoDB = this.getEnvAsString(env, Config.envVarMongoDB);
+      this.mongoCollection = this.getEnvAsString(env, Config.envVarMongoCollection)
+      this.mongoAdmUser = this.getEnvAsString(env, Config.envVarMongoAdminUser);
+      this.mongoAdmPass = this.getEnvAsString(env, Config.envVarMongoAdminPass);
     }
   }
 

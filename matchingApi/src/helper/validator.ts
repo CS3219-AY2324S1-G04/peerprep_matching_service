@@ -5,7 +5,7 @@ import Config from '../dataStructs/config';
 import languageType from '../dataStructs/languageType';
 import questionType from '../dataStructs/questionType';
 
-const config = Config.getInstance();
+const config = Config.get();
 
 /**
  * Middleman function to check if json is in the correct format.
@@ -63,11 +63,9 @@ export function isValidJson(jsonData: any): boolean {
     return false;
   }
 
-  questionType.update();
-
   // Contains invalid, so remove all invalids
   const validQuestions: string[] = jsonData.categories.filter((type: string) =>
-    questionType.qTypes.includes(type),
+    questionType.get().includes(type),
   );
 
   // Somehow sent is length = 0
@@ -187,7 +185,7 @@ export function parseJson(jsonData: any): {
   // No language or wrong language
   if (
     jsonData.language == undefined ||
-    !languageType.lTypes.includes(jsonData.language)
+    !languageType.get().includes(jsonData.language)
   ) {
     validJson.language = 'Nil';
   }
@@ -196,15 +194,15 @@ export function parseJson(jsonData: any): {
   if (Array.isArray(jsonData.categories)) {
     // Contains invalid, so remove all invalids
     const validQuestions: string[] = jsonData.categories.filter(
-      (type: string) => questionType.qTypes.includes(type),
+      (type: string) => questionType.get().includes(type),
     );
     if (validQuestions.length == 0) {
-      validJson.categories = questionType.qTypes;
+      validJson.categories = questionType.get();
     } else {
       validJson.categories = validQuestions;
     }
   } else {
-    validJson.categories = questionType.qTypes;
+    validJson.categories = questionType.get();
   }
 
   return validJson;

@@ -11,7 +11,7 @@ export default class Config {
   private static readonly envVarMongoPass: string = 'MS_MONGO_PASS';
   private static readonly envVarMongoDB: string = 'MS_MONGO_DB';
   private static readonly envVarMongoCollection: string = 'MS_MONGO_COLLECTION';
-  
+
   private static readonly envVarMongoQueueExpiry: string = 'QUEUE_EXPIRY';
   private static readonly envVarExpressPort: string = 'MS_EXPRESS_PORT';
 
@@ -25,8 +25,6 @@ export default class Config {
   private static readonly envRoomServicePort: string = 'SERVICE_ROOM_PORT';
 
   private static readonly appModeEnvVar: string = 'NODE_ENV';
-
-  private static instance: Config | undefined;
 
   /** Copies from Environment and save into these variable names. */
   public readonly mongoHost: string;
@@ -45,20 +43,7 @@ export default class Config {
 
   public readonly isDevEnv: boolean;
 
-  private readonly defaultMongoHost: string = '127.0.0.1';
-  private readonly defaultMongoPort: number = 27018;
-  private readonly defaultMongoUser: string = 'user';
-  private readonly defaultMongoPass: string = 'password';
-  private readonly defaultMongoDB: string = 'matchinginfo' ;
-  private readonly defaultMongoCollection: string = 'queueinfo';
-
-  private readonly defaultMongoQueueExpiry: number = 30 * 1000;
-  private readonly defaultExpressPort: number = 9002;
-  
-  private readonly defaultUserServiceURL: string = '127.0.0.1';
-  private readonly defaultQuestionServiceURL: string = '127.0.0.1';
-  private readonly defaultRoomServiceURL: string = '127.0.0.1';
-
+  private static instance: Config;
   /**
    * Constructs a Config and assigns to each field, the value stored in their
    * corresponding environment variable. If an environment variable does not
@@ -66,92 +51,111 @@ export default class Config {
    *
    * @param env - Environment variables.
    */
-  private constructor(env: NodeJS.ProcessEnv = process.env) {
-    // Mongo
-    this.mongoHost =
-      Config._parseString(env[Config.envVarMongoHost]) ?? this.defaultMongoHost;
-    this.mongoPort = Config._parseInt(env[Config.envVarMongoPort]) ?? this.defaultMongoPort;
-    this.mongoUser = Config._parseString(env[Config.envVarMongoUser]) ?? this.defaultMongoUser;
-    this.mongoPass = Config._parseString(env[Config.envVarMongoPass]) ?? this.defaultMongoPass;
-    this.mongoDB =
-      Config._parseString(env[Config.envVarMongoDB]) ?? this.defaultMongoDB;
+  private constructor(env: NodeJS.ProcessEnv = process.env, debug : boolean = false) {
     
-    this.mongoCollection =
-      Config._parseString(env[Config.envVarMongoCollection]) ?? this.defaultMongoCollection;
-
-    this.mongoQueueExpiry =
-      Config._parseInt(env[Config.envVarMongoQueueExpiry]) ?? this.defaultMongoQueueExpiry;
-
-    this.expressPort = Config._parseInt(env[Config.envVarExpressPort]) ?? this.defaultExpressPort;
-
     this.isDevEnv = env[Config.appModeEnvVar] === 'development';
 
-    // To uncomment once ready for docker
-    // let _a = env[Config.envUserServiceHost]
-    // let _b = env[Config.envUserServicePort]
-    // if (_a !== undefined && _b !== undefined) {
-    //   let _c = Config._parseString(_a)
-    //   let _d = _b
-    //   if (_c !== undefined && _d !== undefined) {
-    //     this.userServiceURL = `http://${_c}:${_d}`;
-    //   } else {
-    //     throw new Error("User service is not defined well in the envs")
-    //   }
-    // } else {
-    //   throw new Error("User service is not defined well in the envs") }
+    if (!debug) {
+      // API
+      this.expressPort = 9002;
 
-    // _a = env[Config.envQuestionServiceHost]
-    // _b = env[Config.envQuestionServicePort]
-    // if (_a !== undefined && _b !== undefined) {
-    //   let _c = Config._parseString(_a)
-    //   let _d = _b
-    //   if (_c !== undefined && _d !== undefined) {
-    //     this.questionServiceURL = `http://${_c}:${_d}`;
-    //   } else {
-    //     throw new Error("Question service is not defined well in the envs")
-    //   }
-    // }else {
-    //   throw new Error("Question service is not defined well in the envs") }
-
-    // _a = env[Config.envRoomServiceHost]
-    // _b = env[Config.envRoomServicePort]
-    // if (_a !== undefined && _b !== undefined) {
-    //   let _c = Config._parseString(_a)
-    //   let _d = _b
-    //   if (_c !== undefined && _d !== undefined) {
-    //     this.roomServiceURL = `http://${_c}:${_d}`;
-    //   } else {
-    //     throw new Error("Room service is not defined well in the envs")
-    //   }
-    // }else {
-    //   throw new Error("Room service is not defined well in the envs") }
-
-    const userServiceHost =
-      Config._parseString(env[Config.envUserServiceHost]) ?? 'localhost';
-    const userServicePort =
-      Config._parseInt(env[Config.envUserServicePort]) ?? 9000;
-    this.userServiceURL = `http://${userServiceHost}:${userServicePort}`;
-
-    const questionServiceHost =
-      Config._parseString(env[Config.envQuestionServiceHost]) ?? 'localhost';
-    const questionServicePort =
-      Config._parseInt(env[Config.envQuestionServicePort]) ?? 9001;
-
-    this.questionServiceURL = `http://${questionServiceHost}:${questionServicePort}`;
-
-    const roomServiceHost =
-      Config._parseString(env[Config.envRoomServiceHost]) ?? 'localhost';
-    const roomServicePort =
-      Config._parseInt(env[Config.envRoomServicePort]) ?? 9003;
-
-    this.roomServiceURL = `http://${roomServiceHost}:${roomServicePort}`;
+      //Mongo
+      this.mongoHost = 'localhost';
+      this.mongoPort = 27018;
+      this.mongoUser = 'user';
+      this.mongoPass = 'password';
+      this.mongoDB = 'matchinginfo'
+      this.mongoCollection = 'queueinfo'
+  
+      this.mongoQueueExpiry = 30 * 1000;
+  
+      // Other Services
+      const userServiceHost = 'localhost';
+      const userServicePort = 9000;
+      this.userServiceURL = `http://${userServiceHost}:${userServicePort}`;
+      
+      const questionServiceHost = 'localhost';
+      const questionServicePort = 9001;
+      this.questionServiceURL = `http://${questionServiceHost}:${questionServicePort}`;
+      
+      const roomServiceHost = 'localhost';
+      const roomServicePort = 9003;
+      this.roomServiceURL = `http://${roomServiceHost}:${roomServicePort}`;
+    } else {
+      // API
+      this.expressPort = this.getEnvAsInt(env, Config.envVarExpressPort)
+      
+      //Mongo
+      this.mongoHost = this.getEnvAsString(env, Config.envVarMongoHost)
+      this.mongoPort = this.getEnvAsInt(env, Config.envVarMongoPort)
+      this.mongoUser = this.getEnvAsString(env, Config.envVarMongoUser)
+      this.mongoPass = this.getEnvAsString(env, Config.envVarMongoPass)
+      this.mongoDB = this.getEnvAsString(env, Config.envVarMongoDB)
+      this.mongoCollection = this.getEnvAsString(env, Config.envVarMongoCollection)
+  
+      this.mongoQueueExpiry = this.getEnvAsInt(env, Config.envVarMongoQueueExpiry)
+  
+      // Other Services
+      const userServiceHost = this.getEnvAsString(env, Config.envUserServiceHost)
+      const userServicePort = this.getEnvAsInt(env, Config.envUserServicePort)
+      this.userServiceURL = `http://${userServiceHost}:${userServicePort}`;
+      
+      const questionServiceHost = this.getEnvAsString(env, Config.envQuestionServiceHost)
+      const questionServicePort = this.getEnvAsInt(env, Config.envQuestionServicePort);
+      this.questionServiceURL = `http://${questionServiceHost}:${questionServicePort}`;
+ 
+      const roomServiceHost = this.getEnvAsString(env, Config.envRoomServiceHost);
+      const roomServicePort = this.getEnvAsInt(env, Config.envRoomServicePort);
+      this.roomServiceURL = `http://${roomServiceHost}:${roomServicePort}`;
+    }
   }
 
-  public static getInstance(): Config {
-    if (Config.instance == undefined) {
-      Config.instance = new Config();
+  public static get() : Config {
+    if (Config.instance === undefined) {
+      Config.instance = new Config()  
     }
-    return Config.instance;
+    return Config.instance
+  }
+
+  public static resetInstance() : void {
+    Config.instance = new Config();
+  }
+  
+
+  /**
+   * Retrieves the string value of key from Environments.
+   * 
+   * @param env NodeJS.ProcessEnv
+   * @param key The environment variable name
+   * @returns The string value of the variable
+   * @throws Error if unable to process the key
+   */
+  private getEnvAsString(env: NodeJS.ProcessEnv, key: any): string {
+    if (env[key] !== undefined) {
+      const ret = this._parseString(env[key])
+      if (ret !== undefined) {
+        return ret
+      }
+    }
+    throw Error(`${key} is not set in env or is not a string.`)
+  }
+
+  /**
+ * Retrieves the int value of key from Environments.
+ * 
+ * @param env NodeJS.ProcessEnv
+ * @param key The environment variable name
+ * @returns The int value of the variable
+ * @throws Error if unable to process the key
+ */
+  private getEnvAsInt(env: NodeJS.ProcessEnv, key: any): number {
+    if (env[key] !== undefined) {
+      const ret = this._parseInt(env[key])
+      if (ret !== undefined) {
+        return ret
+      }
+    }
+    throw Error(`${key} is not set in env or is not a string.`)
   }
 
   /**
@@ -160,7 +164,7 @@ export default class Config {
    * @param raw - The string to be parsed
    * @returns The string or undefined
    */
-  private static _parseString(raw: string | undefined): string | undefined {
+  private _parseString(raw: string | undefined): string | undefined {
     if (raw === undefined || raw === '') {
       return undefined;
     }
@@ -173,7 +177,7 @@ export default class Config {
    * @param raw - The string to be parsed
    * @returns The string or undefined
    */
-  private static _parseInt(raw: string | undefined): number | undefined {
+  private _parseInt(raw: string | undefined): number | undefined {
     if (raw === undefined) {
       return undefined;
     }
