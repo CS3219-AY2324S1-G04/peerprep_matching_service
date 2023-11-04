@@ -29,7 +29,7 @@ router.get('/', verifyJwt, async (req, res) => {
       data: checkQueue.data,
     });
   } else if (checkQueue.status == 404) {
-    const checkRoom = await inRoom(uid);
+    const checkRoom = await inRoom(req.cookies['access-token']);
     if (checkRoom.status == 200) {
       // 303 See other.
       res.status(303).json({
@@ -62,6 +62,8 @@ router.get('/', verifyJwt, async (req, res) => {
 
 // Strictly to join Queue.
 router.post('/join', verifyJwt, async (req, res) => {
+
+  
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
@@ -75,7 +77,7 @@ router.post('/join', verifyJwt, async (req, res) => {
     });
   } else if (checkQueue.status == 404) {
     // not in queue, but in room?
-    const checkRoom = await inRoom(uid);
+    const checkRoom = await inRoom(req.cookies['access-token']);
     if (checkRoom.status == 200) {
       res.status(303).json({
         status: 303,
@@ -89,6 +91,7 @@ router.post('/join', verifyJwt, async (req, res) => {
       // const jsonData = req.body;
 
       const complexity: string = req.query.difficulty as string;
+
       const categories: Array<string>  = req.query
           .categories as Array<string>;
 
@@ -143,9 +146,9 @@ router.post('/join', verifyJwt, async (req, res) => {
         }
 
         // Close socket here Todo: Socket
-        const roomBaseUrl = config.roomServiceURL + '/room-service/room/create';
+        const roomBaseUrl = config.roomServiceURL + '/room-service/rooms';
         const roomCreateJson = {
-          users: [uid.toString(), samePrefUser.userID],
+          'user-ids': [ Number(uid), Number(samePrefUser.userID)],
           'question-id': questionID.id,
           'language' : userPref.language
         };
@@ -250,11 +253,12 @@ router.delete('/:uid', async (req, res) => {
 
 
 // Have FE to ask directly room-service
-async function inRoom(uid: string) {
+async function inRoom(accessToken: string) {
   try {
     const url =
-      config.roomServiceURL + '/room-service/room/user' + '/?user-id=' + uid;
-    const result = await axios.post(url);
+      config.roomServiceURL + '/room-service/room';
+    const result = await axios.get(url, { headers : { 'Cookie' : `access-token=${accessToken}` }});
+    
     return { status: 200, message: 'In Room', data: result.data };
   } catch (error) {
     if (axios.isAxiosError(error)) {

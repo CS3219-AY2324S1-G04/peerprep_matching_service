@@ -89,13 +89,13 @@ export function parseUserInput(userInput: any): matchingUserInput {
   // No difficulty or wrong difficulty
   // Note: userInput.difficulty to change once front end's one changes to complexity
   if (
-    userInput.difficulty == undefined ||
-    !_complexity.includes(userInput.difficulty)
+    userInput.complexity == undefined ||
+    !_complexity.includes(userInput.complexity)
   ) {
     // select 1 difficulty randomly
     validData.complexity = _complexity[Math.floor(Math.random() * _complexity.length)];
   } else {
-    validData.complexity = userInput.difficulty;
+    validData.complexity = userInput.complexity;
   }
 
   // No language or wrong language
