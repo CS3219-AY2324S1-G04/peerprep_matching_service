@@ -48,7 +48,7 @@ export default class mongoClient {
       // Disconnect once everything is complete
       console.log("MongoInit completed all tasks. You may delete this initialization container.")
       db.close()
-    });    
+    });
   }
 
   /**
@@ -63,7 +63,7 @@ export default class mongoClient {
      * 
      * @param req The authenticated Mongo Connection that has root level privileges.
      */
-  private async createUser(config:Config, req: mongoose.Connection) {
+  private async createUser(config: Config, req: mongoose.Connection) {
     console.log(' -- Account setup start --')
     var query = await req.db.command({ usersInfo: { user: `${config.mongoUser}`, db: `${config.mongoDB}` } });
 
@@ -77,7 +77,7 @@ export default class mongoClient {
           ]
         });
         if (user.ok) {
-          console.log("Account has been created!")
+          console.log("Account for API service has been created!")
         }
       } else {
         console.log("Account already exists.")
@@ -95,7 +95,7 @@ export default class mongoClient {
    * 
    * @param req The authenticated Mongo Connection that has root level privileges.
    */
-  private async createCollection(config:Config, req: mongoose.Connection, dbAutoValidate: boolean = false) {
+  private async createCollection(config: Config, req: mongoose.Connection, dbAutoValidate: boolean = false) {
     console.log(' -- Collection setup start --')
     /**
      * The following is only if strict database is desired.
@@ -145,6 +145,30 @@ export default class mongoClient {
             console.error(error)
           }
         });
+
+      // await req.createCollection(`languagetype`, undefined)
+      //   .then(() => console.log("Collection created or Exists"))
+      //   .catch((error) => {
+      //     if (error.codeName == 'NamespaceExists') {
+      //       console.error('Existing Collection exists for language')
+      //       console.error(error.message)
+      //     } else {
+      //       console.error('Uncaught error')
+      //       console.error(error)
+      //     }
+      //   });
+
+      // await req.createCollection(`questiontype`, undefined)
+      //   .then(() => console.log("Collection created or Exists"))
+      //   .catch((error) => {
+      //     if (error.codeName == 'NamespaceExists') {
+      //       console.error('Existing Collection exists for questions')
+      //       console.error(error.message)
+      //     } else {
+      //       console.error('Uncaught error')
+      //       console.error(error)
+      //     }
+      //   });
     } else {
       await req.createCollection(`${config.mongoCollection}`, undefined)
         .then(() => console.log("Collection created or Exists"))
@@ -157,16 +181,48 @@ export default class mongoClient {
             console.error(error)
           }
         });
+
+      // await req.createCollection(`languagetype`, undefined)
+      //   .then(() => console.log("Collection created or Exists"))
+      //   .catch((error) => {
+      //     if (error.codeName == 'NamespaceExists') {
+      //       console.error('Existing Collection exists for language')
+      //       console.error(error.message)
+      //     } else {
+      //       console.error('Uncaught error')
+      //       console.error(error)
+      //     }
+      //   });
+
+      // await req.createCollection(`questiontype`, undefined)
+      //   .then(() => console.log("Collection created or Exists"))
+      //   .catch((error) => {
+      //     if (error.codeName == 'NamespaceExists') {
+      //       console.error('Existing Collection exists for questions')
+      //       console.error(error.message)
+      //     } else {
+      //       console.error('Uncaught error')
+      //       console.error(error)
+      //     }
+      //   });
     }
     console.log(' -- Collection setup end --')
   }
 
-  private async setTTL(config:Config, req: mongoose.Connection) {
+  private async setTTL(config: Config, req: mongoose.Connection) {
 
     console.log(' -- TLL setup start --')
     req.collection(`${config.mongoCollection}`).createIndex({ expireAt: 1 }, { expireAfterSeconds: 0 })
       .then(() => { console.log('Created index on "expireAt" for automatic expiration'); })
       .catch((error) => { console.error(`Error creating index on 'expireAt': ${error}`); })
+
+    // req.collection(`languagetype`).createIndex({ expireAt: 1 }, { expireAfterSeconds: 0 })
+    //   .then(() => { console.log('Created index for language "expireAt" for automatic expiration'); })
+    //   .catch((error) => { console.error(`Error creating index on 'expireAt': ${error}`); })
+
+    // req.collection(`questiontype`).createIndex({ expireAt: 1 }, { expireAfterSeconds: 0 })
+    //   .then(() => { console.log('Created index for question "expireAt" for automatic expiration'); })
+    //   .catch((error) => { console.error(`Error creating index on 'expireAt': ${error}`); })
 
     console.log(' -- TLL setup end --')
   }

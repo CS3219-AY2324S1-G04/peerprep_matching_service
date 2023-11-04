@@ -4,19 +4,21 @@ import express, { NextFunction, Request, Response } from 'express';
 import Config from '../dataStructs/config';
 import questionType from '../dataStructs/questionType';
 import {
-  middleIsValidSession,
-  middleJsonValidator,
-  parseJson,
-} from '../helper/validator';
+  verifyJwt,
+  parseUserInput,
+} from '../helper/helper';
 import { queueInfo, queueInfoModel } from '../mongoModels/queueInfo';
 import languageType from '../dataStructs/languageType';
-// import { Socks } from '../service/sockets';
 
 const router = express.Router();
 const config = Config.get();
 
 // Am I in Queue? Am I in Room?
-router.get('/', middleIsValidSession, async (req, res) => {
+/**
+ * API end point to check if in Queue or in Room.
+ * Calls Room API.
+ */
+router.get('/', verifyJwt, async (req, res) => {
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
@@ -59,7 +61,7 @@ router.get('/', middleIsValidSession, async (req, res) => {
 });
 
 // Strictly to join Queue.
-router.post('/join', middleIsValidSession, async (req, res, next) => {
+router.post('/join', verifyJwt, async (req, res, next) => {
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
@@ -86,56 +88,52 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
 
       // const jsonData = req.body;
 
-      const difficulty: string = req.query.difficulty as string;
+      const complexity: string = req.query.difficulty as string;
       const categories: Array<string>  = req.query
           .categories as Array<string>;
+
+      const language: string = req.query.language as string;
       
       const filter = {
-        difficulty: difficulty,
+        complexity: complexity,
         categories: categories,
+        language: language,
       };
 
-      const properJson = parseJson(filter);
+      const userPref = parseUserInput(filter);
 
       // Now have issue of What if I match before socket is open?
       // Means i need to create socket before joining queue
       const samePrefUser = await queueInfoModel
         .findOneAndDelete({
-          difficulty: properJson.difficulty,
-          categories: { $elemMatch: { $in: properJson.categories } },
+          complexity: userPref.complexity,
+          categories: { $elemMatch: { $in: userPref.categories } },
+          language: userPref.language,
         })
         .exec();
 
-      // I found same preference
+      // I found at least one preference match, and (have same difficulty and language)
       if (samePrefUser) {
-        // console.log(`${uid} has same preference as ${samePrefUser.userID}`);
-        // Deal with socket here Todo:
-        // samePrefUser.socketID <<<<<< tell socket to close
-        // how though
 
-        // try {
-        //   Socks.otherUserMatch(samePrefUser.userID);
-        //   console.log('Sent to socks');
-        // } catch (error) {
-        //   console.error('Unable to inform other party that room matched');
-        // }
-
+        // Find out what other preferences match (again match one preference first)
         const matchedValues: string[] = samePrefUser.categories.filter(
-          (value) => properJson.categories.includes(value),
+          (value) => userPref.categories.includes(value),
         );
 
         const baseUrl =
           config.questionServiceURL +
           '/question-service/question-matching/question?';
-        const complexityParam = `complexity=${properJson.difficulty}`;
+        const complexityParam = `complexity=${userPref.complexity}`;
         const categoryParam = matchedValues
           .map((item) => `category[]=${item}`)
           .join('&');
+        const languageParam = `language=${userPref.language}`
 
         const questionID = await getQuestion(
           baseUrl,
           complexityParam,
           categoryParam,
+          languageParam
         );
 
         if (questionID.id == null) {
@@ -149,6 +147,7 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
         const roomCreateJson = {
           users: [uid.toString(), samePrefUser.userID],
           'question-id': questionID.id,
+          'language' : userPref.language
         };
         try {
           console.log('Creating Room');
@@ -181,18 +180,18 @@ router.post('/join', middleIsValidSession, async (req, res, next) => {
         try {
           new queueInfoModel({
             userID: uid,
-            difficulty: properJson.difficulty,
-            categories: properJson.categories,
-            language: properJson.language,
+            complexity: userPref.complexity,
+            categories: userPref.categories,
+            language: userPref.language,
             expireAt: new Date(Date.now() + config.mongoQueueExpiry),
           }).save();
           res.status(200).json({
             status: 200,
             message: 'Joined Queue!',
             data: {
-              difficulty : properJson.difficulty,
-              categories: properJson.categories,
-              // language: properJson.language
+              complexity : userPref.complexity,
+              categories: userPref.categories,
+              language: userPref.language
             },
           });
         } catch (error) {
@@ -260,7 +259,7 @@ async function inQueue(uid: string) {
         status: 404,
         message: 'Not in Queue',
         data: {
-          difficulty: ['Easy', 'Medium', 'Hard'],
+          complexity: ['Easy', 'Medium', 'Hard'],
           'categories': questionType.get(),
           'language': languageType.get(),
         },
@@ -276,6 +275,7 @@ async function getQuestion(
   baseUrl: string,
   complexityParam: string,
   categoryParam: string,
+  languageParam: string, 
 ) {
   try {
     // The expectations of what i recieve back from this link
@@ -283,7 +283,7 @@ async function getQuestion(
     // or 200 without the contents. Where contents is `data : {}`
 
     const getQuestion = await axios.get(
-      baseUrl + complexityParam + '&' + categoryParam,
+      baseUrl + complexityParam + '&' + languageParam + '&' + categoryParam,
     );
     // returned 200 and data not empty
     if (getQuestion.data.data) {
@@ -299,7 +299,7 @@ async function getQuestion(
       // returned 200 and data is empty
       try {
         // Because possible to get 200 but empty data, call for one question of same complexity
-        const getQuestionAny = await axios.get(baseUrl + complexityParam);
+        const getQuestionAny = await axios.get(baseUrl + complexityParam + '&' + languageParam);
         return {
           id: getQuestionAny.data.data._id,
           json: {

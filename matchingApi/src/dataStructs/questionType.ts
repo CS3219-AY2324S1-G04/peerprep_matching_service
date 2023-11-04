@@ -10,7 +10,7 @@ import Config from './config';
 export default class questionType {
 
   private static config = Config.get();
-  // private static lastUpdate = new Date(Date.now());
+  private static lastUpdate = new Date(Date.now());
 
   private static _questionTypes: string[] = [
     "Array",
@@ -44,13 +44,19 @@ export default class questionType {
   ];
 
   public static get(): string[] {
+
+    if ((new Date()).getTime() - questionType.lastUpdate.getTime() > 10 * 60 * 1000) {
+      questionType.update();
+      questionType.lastUpdate = new Date(Date.now());
+    }
+
     return questionType._questionTypes;
   }
 
   /**
    * Queries question service for the type of questions that are supported.
    */
-  public async update(): Promise<void> {
+  public static async update(): Promise<void> {
     const baseUrl = questionType.config.questionServiceURL + '/question-service/categories';
 
     try {

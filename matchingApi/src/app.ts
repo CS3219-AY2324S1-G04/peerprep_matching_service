@@ -4,15 +4,15 @@
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import express, { Request, Response } from 'express';
-// import http from 'http';
 
 import Config from './dataStructs/config';
 import newQueue from './routes/newQueue';
 import mongoClient from './service/mongo';
-// import { Socks } from './service/sockets';
+
 import cors from 'cors';
 import questionType from './dataStructs/questionType';
 import languageType from './dataStructs/languageType';
+import { getJWTKey } from './helper/helper';
 
 /**
  * This is the server which the front end will talk to.
@@ -30,7 +30,6 @@ export default class App {
     this.config = Config.get();
     this.app = express();
     this.port = this.config.expressPort;
-    // this.socketPort = 4000; // sock to check if should have a specific port for port or not
     this.mongo = new mongoClient();
     this.mongo.connect()
   }
@@ -46,6 +45,9 @@ export default class App {
     this.app.listen(this.port, () => {
       console.log(`Matching-Service is running on port ${this.port}`);
     });
+
+    getJWTKey();
+    this.synchronizeService();
   }
 
   private middleMan(config: Config): void {
@@ -63,7 +65,6 @@ export default class App {
     // Last item
     this.app.use((req: Request, res: Response) => {
       res.status(404).send({
-        status : 404,
         message : "The url you requested is invalid",
         data : undefined
       });
@@ -81,7 +82,7 @@ export default class App {
   }
 
   private async synchronizeService(): Promise<void> {
-    await (new questionType).update();
-    await (new languageType).update();
+    await questionType.update();
+    await languageType.update();
   }
 }

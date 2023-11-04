@@ -6,23 +6,35 @@ import Config from './config';
 
 /**
  * Language Type should contain the programming languages stored in the Question service.
+ * 
+ * This replication is not for replication sake, but rather for validation of the user-input.
+ * Such validation could be forgone if the matching system is written in a different way. 
  */
 export default class languageType {
 
   private static config = Config.get()
-  // private static lastUpdate = new Date(Date.now());
+  private static lastUpdate = new Date(Date.now());
 
   private static _languageTypes: string[] = ["cpp", "java", "python", "python3", "c",
-    "csharp", "javascript", "typescript", "php", "swift", "kotlin", "dart", "golang", "ruby", "scala", "rust", "racket", "erlang", "elixir"];
+    "csharp", "javascript", "typescript", "php", "swift", "kotlin", "dart", "golang", 
+    "ruby", "scala", "rust", "racket", "erlang", "elixir"];
 
+  /**
+   * 
+   * @returns The latest languages
+   */
   public static get(): string[] {
+    if ((new Date()).getTime() - languageType.lastUpdate.getTime() > 10 * 60 * 1000) {
+      languageType.update();
+      languageType.lastUpdate = new Date(Date.now());
+    }
     return languageType._languageTypes;
   }
 
   /**
    * Queries question service for the languages that are supported.
    */
-  public async update(): Promise<void> {
+  public static async update(): Promise<void> {
 
     const baseUrl = languageType.config.questionServiceURL + '/question-service/languages';
 

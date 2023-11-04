@@ -1,8 +1,6 @@
 /**
- * Used for:
- * - This is what is stored in the "queue".
- *
- * @file Defines {@link queueEntityModel}.
+ * This is to interface with mongoDB's collection.
+ * @file Defines {@link queueInfoModel}.
  */
 import mongoose, { Document, Schema } from 'mongoose';
 
@@ -12,7 +10,7 @@ const config = Config.get();
 
 const queueInfoSchema = new Schema({
   userID: { type: String, unique: true },
-  difficulty: {
+  complexity: {
     type: String,
     enum: ['Easy', 'Medium', 'Hard'],
     required: true,
@@ -25,9 +23,12 @@ const queueInfoSchema = new Schema({
   },
 });
 
+/**
+ * DataType for typescript.
+ */
 export interface queueInfo extends Document {
   userID: string;
-  difficulty: string;
+  complexity: string;
   categories: string[];
   language: string;
   expireAt: Date;
@@ -35,6 +36,9 @@ export interface queueInfo extends Document {
 
 queueInfoSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 
+/**
+ * Item needed to interface with Mongo
+ */
 export const queueInfoModel = mongoose.model<queueInfo>(
   'QueueInfo',
   queueInfoSchema,

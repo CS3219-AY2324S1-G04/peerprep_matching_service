@@ -41,21 +41,27 @@ export default class Config {
   public readonly questionServiceURL: string;
   public readonly roomServiceURL: string;
 
+  /** Copies from Development variables */
   public readonly isDevEnv: boolean;
 
+  /** Other variables */
   private static instance: Config;
+
   /**
    * Constructs a Config and assigns to each field, the value stored in their
    * corresponding environment variable. If an environment variable does not
-   * have a valid value, assigns a default value instead.
+   * have a valid value, throws an error instead.
+   * 
+   * Only enable localDev mode if running outside docker (i.e. npm run start:dev)
    *
-   * @param env - Environment variables.
+   * @param env - Location to find Environment variables.
+   * @param localDev - Local testing switch (default false)
    */
-  private constructor(env: NodeJS.ProcessEnv = process.env, debug : boolean = false) {
+  private constructor(env: NodeJS.ProcessEnv = process.env, localDev : boolean = false) {
     
     this.isDevEnv = env[Config.appModeEnvVar] === 'development';
 
-    if (!debug) {
+    if (localDev) {
       // API
       this.expressPort = 9002;
 
@@ -110,6 +116,11 @@ export default class Config {
     }
   }
 
+  /**
+   * Instantiates config if not yet done, else returns the config. 
+   * 
+   * @returns The current running configuration
+   */
   public static get() : Config {
     if (Config.instance === undefined) {
       Config.instance = new Config()  
@@ -117,9 +128,12 @@ export default class Config {
     return Config.instance
   }
 
-  public static resetInstance() : void {
-    Config.instance = new Config();
-  }
+  /**
+   * For testing
+   */
+  // public static resetInstance() : void {
+  //   Config.instance = new Config();
+  // }
   
 
   /**
