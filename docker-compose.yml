@@ -81,7 +81,7 @@ services:
       SERVICE_QUESTION_HOST: question_service_api
       SERVICE_QUESTION_PORT: ${SERVICE_QUESTION_PORT}
 
-      SERVICE_ROOM_HOST: peerprep_room_service_api
+      SERVICE_ROOM_HOST: room_service_api
       SERVICE_ROOM_PORT: ${SERVICE_ROOM_PORT}
 
     networks:
