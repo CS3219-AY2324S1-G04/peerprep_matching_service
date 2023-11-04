@@ -40,6 +40,6 @@ queueInfoSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
  * Item needed to interface with Mongo
  */
 export const queueInfoModel = mongoose.model<queueInfo>(
-  'QueueInfo',
+  config.mongoCollection,
   queueInfoSchema,
 );

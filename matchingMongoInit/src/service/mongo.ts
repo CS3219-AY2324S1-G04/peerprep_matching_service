@@ -182,6 +182,7 @@ export default class mongoClient {
           }
         });
 
+      // Some thought was given into turning this into a cache instead. 
       // await req.createCollection(`languagetype`, undefined)
       //   .then(() => console.log("Collection created or Exists"))
       //   .catch((error) => {

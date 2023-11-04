@@ -26,7 +26,7 @@ export async function verifyJwt(req: Request, res: Response, next: NextFunction)
   } else {
     // No Pub key case (shouldn't hit here but not impossible)
     if (process.env.JwtKey == undefined) {
-      await getJWTKey;
+      await getJWTKey();
     }
     
     const PUBLIC_KEY = process.env.JwtKey || '';

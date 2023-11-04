@@ -53,7 +53,7 @@ If you are planning to use the provided docker container mongo server, please ch
 
 **Cookies**
 
-- `session_token` - Session token.
+- `access-token` - Access token.
 
 **Returns**
 
@@ -65,17 +65,17 @@ If you are planning to use the provided docker container mongo server, please ch
 
 ### Join the user to the queue
 
-> [POST] `/matching-service/queue/`
+> [POST] `/matching-service/queue/join`
 
 **Cookies**
 
-- `session_token` - Session token.
+- `access_token` - Access token.
 
 **Parameters**
 
-- `complexity` - The complexity of the question
-- `categories` - The categories of the question - Can be multiple
-- `languages` - The programming language of the question
+- `difficulty` - The complexity of the question. 
+- `categories[]` - The categories of the question - Can be multiple
+- `language` - The programming language of the question
 
 **Returns**
 
@@ -88,12 +88,13 @@ If you are planning to use the provided docker container mongo server, please ch
 **Examples**
 
 Complexity and Categories provided
-> `/matching-service/queue/join?complexity=Easy&categories[]=Strings&categories[]=Arrays`
-Will lead to paring with people of the same complexity and category.
+> `/matching-service/queue/join?difficulty=Easy&categories[]=Strings&categories[]=Arrays&language=cpp`
+Will lead to paring with people of the same complexity and category and language.
 
 No Complexity and no Categories provided, or bad request sent
 > `/matching-service/queue/join`
-Will lead to paring with people of the a randomized complexity and any category.
+Will lead to paring with people of the a randomized complexity and any category and python3 as language.
+
 
 ### Remove the user to the queue
 
@@ -101,12 +102,15 @@ Will lead to paring with people of the a randomized complexity and any category.
 
 **Cookies**
 
-- `session_token` - Session token.
+- `access-token` - Access token.
+
+**Returns**
+
+- `200` - { message: "Received message" }. 
+- `401` - { message: "Not authorized" }
 
 ### Remove a particular user from the queue
 
 > [DELETE] `/matching-service/queue/:uid`
 
-**Cookies**
-
-- `session_token` - Session token.
+Primarily for testing

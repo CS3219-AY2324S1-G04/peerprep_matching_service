@@ -71,7 +71,7 @@ export default class Config {
       this.mongoUser = 'user';
       this.mongoPass = 'password';
       this.mongoDB = 'matchinginfo'
-      this.mongoCollection = 'queueinfo'
+      this.mongoCollection = 'queueinfos'
   
       this.mongoQueueExpiry = 30 * 1000;
   

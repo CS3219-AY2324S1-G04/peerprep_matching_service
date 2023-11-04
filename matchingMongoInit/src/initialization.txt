@@ -9,8 +9,8 @@ if (matchingdb.getUser("user") == null) {
 matchingdb.createUser({ user: "user", pwd: "password", roles: [ "readWrite" ] })
 }
 
-matchingdb.createCollection("queueinfo")
-// matchingdb.createCollection("queueinfo", {
+matchingdb.createCollection("queueinfos")
+// matchingdb.createCollection("queueinfos", {
 //     validator: {
 //         $jsonSchema: {
 //             bsonType: "object",

@@ -61,7 +61,7 @@ router.get('/', verifyJwt, async (req, res) => {
 });
 
 // Strictly to join Queue.
-router.post('/join', verifyJwt, async (req, res, next) => {
+router.post('/join', verifyJwt, async (req, res) => {
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
@@ -152,6 +152,14 @@ router.post('/join', verifyJwt, async (req, res, next) => {
         try {
           console.log('Creating Room');
           const roomRes = await axios.post(roomBaseUrl, roomCreateJson);
+          // _   _     _               
+          // | |_|_|___| |_ ___ ___ _ _ 
+          // |   | |_ -|  _| . |  _| | |
+          // |_|_|_|___|_| |___|_| |_  |
+          //                       |___|
+          // should be able to do after this call, caz user doesn't need to know history has been created
+          // but I need history id though
+
           res.status(200).json({
             status: 200,
             message: 'Room Created',
@@ -219,6 +227,29 @@ router.post('/join', verifyJwt, async (req, res, next) => {
   }
 });
 
+
+router.delete('/', verifyJwt, async (req, res) => {
+  const uid = res.locals['user-id'];
+  try {
+    await queueInfoModel.findOneAndRemove({ userID: uid }).exec();
+    res.status(200).json({ message: "Received command to remove user from queue"})
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error, unable to remove from queue" });
+  }
+})
+
+router.delete('/:uid', async (req, res) => {
+  try {
+    await queueInfoModel.findOneAndRemove({ userID: req.params.uid }).exec();
+    res.status(200).json({ message: "Received command to remove user from queue"})
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error, unable to remove from queue" });
+  }
+})
+
+
 // Have FE to ask directly room-service
 async function inRoom(uid: string) {
   try {
@@ -270,7 +301,7 @@ async function inQueue(uid: string) {
     return { status: 500, message: 'Server error', data: undefined };
   }
 }
-////////////////////////////////////////////////////////////
+
 async function getQuestion(
   baseUrl: string,
   complexityParam: string,
