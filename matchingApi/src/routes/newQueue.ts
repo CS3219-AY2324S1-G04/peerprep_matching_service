@@ -157,8 +157,7 @@ router.post('/join', verifyJwt, async (req, res) => {
           // |   | |_ -|  _| . |  _| | |
           // |_|_|_|___|_| |___|_| |_  |
           //                       |___|
-          // should be able to do after this call, caz user doesn't need to know history has been created
-          // but I need history id though
+          // History is diverted to room-service's responsibility
 
           res.status(200).json({
             status: 200,
