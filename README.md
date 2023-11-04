@@ -15,35 +15,22 @@ Handles the queuing and matching of users.
 
 ### MONGO
 
-#### My Own Mongo Server
-
-If you are using your own mongo server, please change the following:
-
-- `MONGO_USER` - Username of the Mongo database
-- `MONGO_PASS` - Password of the Mongo database
-- `MONGO_PORT` - Port of the Mongo database
-- `MS_MONGO_DB` - Database to write to
-
-And ensure that `MONGO_USER` `MONGO_PASS` has read-write access to `MS_MONGO_DB` on your server. You may see `initialization.txt` for what mongo-init does.
-
-If you are not using simple credentials, you will need to edit the source code. 
-
-#### Using the provided Mongo Container
-
-If you are planning to use the provided docker container mongo server, please change the following:
-
-** CRITICAL TO CHANGE **
 - `MONGO_USER` - Username of the Mongo database
 - `MONGO_PASS` - Password of the Mongo database
 - `MS_MONGO_ADMIN_USER` - Username of the Mongo admin account
 - `MS_MONGO_ADMIN_PASS` - Password of the Mongo admin account
-  
+- `MS_MONGO_DB` - Name of the Mongo database 
+- `MS_MONGO_COLLECTION` - Name of the Mongo collection
 
 ### APP
 
 - `NODE_ENV` - Set this to an empty string
-- `MS_EXPRESS_PORT` - Port for the API server
+- `MS_EXPRESS_PORT` - Port for this API server
 - `QUEUE_EXPIRY` - TTL for the document. Due to this using Mongo's auto delete, collection may take up to one minute to get deleted. 
+- `JwtKey` - Do not change or write into this
+- `SERVICE_USER_PORT` - port of the user service
+- `SERVICE_QUESTION_PORT` - port of the question service
+- `SERVICE_ROOM_PORT` - port of the room service
 
 ## REST API
 
