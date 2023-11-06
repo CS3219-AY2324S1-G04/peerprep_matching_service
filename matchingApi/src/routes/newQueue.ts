@@ -150,7 +150,7 @@ router.post('/join', verifyJwt, async (req, res) => {
         const roomCreateJson = {
           'user-ids': [ Number(uid), Number(samePrefUser.userID)],
           'question-id': questionID.id,
-          'language' : userPref.language
+          'question-lang-slug' : userPref.language
         };
         try {
           console.log('Creating Room');
@@ -161,6 +161,8 @@ router.post('/join', verifyJwt, async (req, res) => {
           // |_|_|_|___|_| |___|_| |_  |
           //                       |___|
           // History is diverted to room-service's responsibility
+
+          console.log(roomRes.data)
 
           res.status(200).json({
             status: 200,
