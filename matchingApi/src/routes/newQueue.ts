@@ -22,6 +22,7 @@ router.get('/', verifyJwt, async (req, res) => {
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
+
   if (checkQueue.status == 200) {
     res.status(200).json({
       status: checkQueue.status,
@@ -44,6 +45,7 @@ router.get('/', verifyJwt, async (req, res) => {
         data: checkQueue.data, // checkRoom does not give u what to post
       });
     } else {
+      console.log("Unknown queue status")
       res.status(checkRoom.status).json({
         status: checkRoom.status,
         message: checkRoom.message,
@@ -52,6 +54,7 @@ router.get('/', verifyJwt, async (req, res) => {
     }
   } else {
     // i actually don't know what checkQueue brings you here
+    console.log("Unknown queue status")
     res.status(checkQueue.status).json({
       status: checkQueue.status,
       message: checkQueue.message,
