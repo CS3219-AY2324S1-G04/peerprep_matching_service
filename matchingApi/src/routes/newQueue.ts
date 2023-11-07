@@ -66,7 +66,6 @@ router.get('/', verifyJwt, async (req, res) => {
 // Strictly to join Queue.
 router.post('/join', verifyJwt, async (req, res) => {
 
-  
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
@@ -93,7 +92,7 @@ router.post('/join', verifyJwt, async (req, res) => {
 
       // const jsonData = req.body;
 
-      const complexity: string = req.query.difficulty as string;
+      const complexity: string = req.query.complexity as string;
 
       const categories: Array<string>  = req.query
           .categories as Array<string>;

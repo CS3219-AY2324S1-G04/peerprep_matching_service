@@ -104,8 +104,10 @@ export function parseUserInput(userInput: any): matchingUserInput {
     userInput.language == undefined ||
     !languageType.get().includes(userInput.language)
   ) {
-    const lang = languageType.get();
+    // const lang = languageType.get();
     validData.language = 'python3' //lang[Math.floor(Math.random() * lang.length)];
+  } else {
+    validData.language = userInput.language
   }
 
   // No questions or wrong questions. Select all.
