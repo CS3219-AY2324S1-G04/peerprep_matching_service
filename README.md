@@ -5,32 +5,34 @@ Handles the queuing and matching of users.
 ## Quickstart Guide
 
 1. Clone this repository.
-2. Build the npm images by running: `./run.bat`
-3. Modify the `.env` file as per needed. Refer to [Environment Variables](#environment-variables) for the variables we suggest changing.
-4. Create the docker containers by running: `docker compose up`
+2. Modify the `.env` file as per needed. Refer to [Environment Variables](#environment-variables) for the variables we suggest changing.
+3. Build the npm images and docker instances by running: `./run.sh`
+4. Start the docker containers by running: `docker compose up`
 5. If you are using , initialize MongoDB by starting MongoDB and running the mongo initializer container.
 6. If you have an existing MongoDB, please ensure that you edit the environment variables to allow the API to access the database.
 
 ## Environment Variables
 
+### APP
+
+- `NODE_ENV` - Set this to an empty string
+- `MS_EXPRESS_PORT` - Port for this API server
+- `QUEUE_EXPIRY` - TTL for the document. Due to this using Mongo's auto delete, collection may take up to one additional minute to get deleted. 
+- `JwtKey` - Do not change or write into this
+- `SERVICE_USER_PORT` - port of the user service
+- `SERVICE_QUESTION_PORT` - port of the question service
+- `SERVICE_ROOM_PORT` - port of the room service
+- 
 ### MONGO
 
 - `MONGO_USER` - Username of the Mongo database
 - `MONGO_PASS` - Password of the Mongo database
 - `MS_MONGO_ADMIN_USER` - Username of the Mongo admin account
 - `MS_MONGO_ADMIN_PASS` - Password of the Mongo admin account
+- `MS_MONGO_PORT` - The port of the Mongo database
 - `MS_MONGO_DB` - Name of the Mongo database 
 - `MS_MONGO_COLLECTION` - Name of the Mongo collection
 
-### APP
-
-- `NODE_ENV` - Set this to an empty string
-- `MS_EXPRESS_PORT` - Port for this API server
-- `QUEUE_EXPIRY` - TTL for the document. Due to this using Mongo's auto delete, collection may take up to one minute to get deleted. 
-- `JwtKey` - Do not change or write into this
-- `SERVICE_USER_PORT` - port of the user service
-- `SERVICE_QUESTION_PORT` - port of the question service
-- `SERVICE_ROOM_PORT` - port of the room service
 
 ## REST API
 

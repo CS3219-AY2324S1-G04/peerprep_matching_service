@@ -4,14 +4,11 @@ services:
   peerprep_matching_service_mongo:
     container_name: peerprep_matching_service_mongo
     image: mongo:latest
-    restart: always
+    restart: unless-stopped
     environment:
       # This is admin account. 
       MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_ADMIN_PASS}
-
-    ports:
-     - "27018:27017"
 
     networks:
       - peerprep
@@ -57,7 +54,7 @@ services:
       - peerprep_matching_service_mongo
     image: peerprep_matching_service_api
     build: ./matchingApi
-    restart: always
+    restart: unless-stopped
     environment:
       # API
       NODE_ENV: ${NODE_ENV}

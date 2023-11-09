@@ -3,6 +3,7 @@ matching_service_image_name='peerprep_matching_service_api'
 matching_service_mongo='peerprep_matching_service_mongo_init'
 
 cd ./matchingApi
+npm install
 npm run build 
 
 if [ $? -eq 0 ]; then
@@ -17,6 +18,7 @@ fi
 cd ..
 
 cd ./matchingMongoInit
+npm install
 npm run build 
 
 if [ $? -eq 0 ]; then
