@@ -1,8 +1,8 @@
 version: "3"
 services:
   #Matching Service
-  peerprep_matching_service_mongo:
-    container_name: peerprep_matching_service_mongo
+  matching_service_mongo:
+    container_name: matching_service_mongo
     image: mongo:latest
     restart: unless-stopped
     environment:
@@ -13,15 +13,16 @@ services:
     networks:
       - peerprep
 
-  peerprep_matching_service_mongo_init:
-    container_name: peerprep_matching_service_mongo_init
+  matching_service_mongo_init:
+    container_name: matching_service_mongo_init
     depends_on:
-      - peerprep_matching_service_mongo
-    image: peerprep_matching_service_mongo_init
+      - matching_service_mongo
+    image: matching_service_mongo_init
     build: ./matchingMongoInit
     environment:
-      MS_MONGO_HOST: peerprep_matching_service_mongo
-      MS_MONGO_PORT: ${MS_MONGO_PORT}
+      MS_MONGO_URI : mongodb://${MS_MONGO_ADMIN_USER}:${MS_MONGO_ADMIN_PASS}@matching_service_mongo:{MS_MONGO_PORT}
+      # MS_MONGO_HOST: matching_service_mongo
+      # MS_MONGO_PORT: ${MS_MONGO_PORT}
 
       # Note: This is an account which has root access to create accounts and collection
       # That is to say, if you are using your own Mongo and want to use this for initialization, 
@@ -48,11 +49,11 @@ services:
     networks:
       - peerprep
 
-  peerprep_matching_service_api:
-    container_name: peerprep_matching_service_api
+  matching_service_api:
+    container_name: matching_service_api
     depends_on:
-      - peerprep_matching_service_mongo
-    image: peerprep_matching_service_api
+      - matching_service_mongo
+    image: matching_service_api
     build: ./matchingApi
     restart: unless-stopped
     environment:
@@ -61,12 +62,13 @@ services:
       MS_EXPRESS_PORT: ${MS_EXPRESS_PORT}
 
       # DB
-      MS_MONGO_HOST: peerprep_matching_service_mongo
-      MS_MONGO_PORT: ${MS_MONGO_PORT}
-      MS_MONGO_USER: ${MS_MONGO_USER}
-      MS_MONGO_PASS: ${MS_MONGO_PASS}
+      MS_MONGO_URI : mongodb://${MS_MONGO_USER}:${MS_MONGO_PASS}@matching_service_mongo:{MS_MONGO_PORT}/${MS_MONGO_DB}
+      # MS_MONGO_HOST: matching_service_mongo
+      # MS_MONGO_PORT: ${MS_MONGO_PORT}
+      # MS_MONGO_USER: ${MS_MONGO_USER}
+      # MS_MONGO_PASS: ${MS_MONGO_PASS}
 
-      MS_MONGO_DB: ${MS_MONGO_DB}
+      # MS_MONGO_DB: ${MS_MONGO_DB}
       MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
 
       QUEUE_EXPIRY: ${QUEUE_EXPIRY}

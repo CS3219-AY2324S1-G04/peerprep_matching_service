@@ -1,10 +1,7 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": "./tsconfig.json",
-    "tsconfigRootDir": "./matchingApi"
-  },
+  "parserOptions": { "project": "./tsconfig.json", "tsconfigRootDir": "./matchingApi" },
   "plugins": ["@typescript-eslint", "prettier"],
   "extends": [
     "eslint:recommended",
@@ -65,11 +62,32 @@
         "tabWidth": 2,
         "ignoreUrls": true,
         "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
         "ignoreRegExpLiterals": true
       }
     ],
     "prettier/prettier": 2,
 
+    "jsdoc/require-jsdoc": [
+      1,
+      {
+        "publicOnly": true,
+        "contexts": [
+          "ArrowFunctionExpression",
+          "ClassDeclaration",
+          "ClassExpression",
+          "FunctionDeclaration",
+          "FunctionExpression",
+          "MethodDefinition",
+          "PropertyDefinition",
+          "TSTypeAliasDeclaration",
+          "TSEnumDeclaration",
+          "TSInterfaceDeclaration",
+          "TSMethodSignature",
+          "TSPropertySignature"
+        ]
+      }
+    ],
     // "jsdoc/check-examples": 1, // TODO: Enable this when it is supported by ESLint 8
     "jsdoc/check-indentation": 1,
     "jsdoc/check-line-alignment": 1,

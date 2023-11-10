@@ -5,99 +5,121 @@
 /** Represents the app's configs. */
 export default class Config {
   /** Variable names that are found in environment  */
-  private static readonly envVarMongoHost: string = 'MS_MONGO_HOST';
-  private static readonly envVarMongoPort: string = 'MS_MONGO_PORT';
 
-  private static readonly envVarMongoAdminUser: string = 'MS_MONGO_ADMIN_USER';
-  private static readonly envVarMongoAdminPass: string = 'MS_MONGO_ADMIN_PASS';
+  private static readonly _envMongoURI: string = 'MS_MONGO_URI';
 
-  private static readonly envVarMongoUser: string = 'MS_MONGO_USER';
-  private static readonly envVarMongoPass: string = 'MS_MONGO_PASS';
+  private static readonly _envMongoAdminUser: string = 'MS_MONGO_ADMIN_USER';
+  private static readonly _envMongoAdminPass: string = 'MS_MONGO_ADMIN_PASS';
 
-  private static readonly envVarMongoDB: string = 'MS_MONGO_DB';
-  private static readonly envVarMongoCollection: string = 'MS_MONGO_COLLECTION';
+  private static readonly _envMongoUser: string = 'MS_MONGO_USER';
+  private static readonly _envMongoPass: string = 'MS_MONGO_PASS';
 
+  private static readonly _envMongoDB: string = 'MS_MONGO_DB';
+  private static readonly _envMongoCollection: string = 'MS_MONGO_COLLECTION';
 
   /** Copies from Environment and save into these variable names. */
-  public readonly mongoHost: string;
-  public readonly mongoPort: number;
+
+  /**
+   *
+   */
+  public readonly mongoURI: string;
+
+  /**
+   *
+   */
   public readonly mongoUser: string;
+  /**
+   *
+   */
   public readonly mongoPass: string;
+  /**
+   *
+   */
   public readonly mongoDB: string;
+  /**
+   *
+   */
   public readonly mongoCollection: string;
+  /**
+   *
+   */
   public readonly mongoAdmUser: string;
+  /**
+   *
+   */
   public readonly mongoAdmPass: string;
 
   /**
    * Constructs a Config and assigns to each field, the value stored in their
    * corresponding environment variable. If an environment variable does not
    * have a valid value, assigns a default value instead.
-  *
-  * @param env - Environment variables.
-  */
-  public constructor(env: NodeJS.ProcessEnv = process.env, debug: boolean = false) {
+   * @param env - Environment variables.
+   * @param debug
+   */
+  public constructor(
+    env: NodeJS.ProcessEnv = process.env,
+    debug: boolean = false,
+  ) {
     if (debug) {
-      this.mongoHost = 'localhost'
-      this.mongoPort = 27018
-      this.mongoUser = 'user'
-      this.mongoPass = 'password'
-      this.mongoDB = 'matchinginfo'
-      this.mongoCollection = 'queueinfo'
-      this.mongoAdmUser = 'admin'
-      this.mongoAdmPass = 'password'
+      this.mongoUser = 'user';
+      this.mongoPass = 'password';
+      this.mongoDB = 'matchinginfo';
+      this.mongoCollection = 'queueinfo';
+      this.mongoAdmUser = 'admin';
+      this.mongoAdmPass = 'password';
+      this.mongoURI = `mongodb://${this.mongoAdmUser}:${this.mongoAdmPass}@localhost:27017`;
     } else {
-      this.mongoHost = this.getEnvAsString(env, Config.envVarMongoHost);
-      this.mongoPort = this.getEnvAsInt(env, Config.envVarMongoPort);
-      this.mongoUser = this.getEnvAsString(env, Config.envVarMongoUser);
-      this.mongoPass = this.getEnvAsString(env, Config.envVarMongoPass);
-      this.mongoDB = this.getEnvAsString(env, Config.envVarMongoDB);
-      this.mongoCollection = this.getEnvAsString(env, Config.envVarMongoCollection)
-      this.mongoAdmUser = this.getEnvAsString(env, Config.envVarMongoAdminUser);
-      this.mongoAdmPass = this.getEnvAsString(env, Config.envVarMongoAdminPass);
+      this.mongoURI = this._getEnvAsString(env, Config._envMongoURI);
+      this.mongoUser = this._getEnvAsString(env, Config._envMongoUser);
+      this.mongoPass = this._getEnvAsString(env, Config._envMongoPass);
+      this.mongoDB = this._getEnvAsString(env, Config._envMongoDB);
+      this.mongoCollection = this._getEnvAsString(
+        env,
+        Config._envMongoCollection,
+      );
+      this.mongoAdmUser = this._getEnvAsString(env, Config._envMongoAdminUser);
+      this.mongoAdmPass = this._getEnvAsString(env, Config._envMongoAdminPass);
     }
   }
 
   /**
    * Retrieves the string value of key from Environments.
-   * 
-   * @param env NodeJS.ProcessEnv
-   * @param key The environment variable name
-   * @returns The string value of the variable
-   * @throws Error if unable to process the key
+   * @param env - NodeJS.ProcessEnv.
+   * @param key - The environment variable name.
+   * @returns The string value of the variable.
+   * @throws Error if unable to process the key.
    */
-  private getEnvAsString(env: NodeJS.ProcessEnv, key: any): string {
+  private _getEnvAsString(env: NodeJS.ProcessEnv, key: string): string {
     if (env[key] !== undefined) {
-      const ret = this._parseString(env[key])
+      const ret = this._parseString(env[key]);
       if (ret !== undefined) {
-        return ret
+        return ret;
       }
     }
-    throw Error(`${key} is not set in env or is not a string.`)
+    throw Error(`${key} is not set in env or is not a string.`);
   }
 
   /**
- * Retrieves the int value of key from Environments.
- * 
- * @param env NodeJS.ProcessEnv
- * @param key The environment variable name
- * @returns The int value of the variable
- * @throws Error if unable to process the key
- */
-  private getEnvAsInt(env: NodeJS.ProcessEnv, key: any): number {
+   * Retrieves the int value of key from Environments.
+   * @param env - NodeJS.ProcessEnv.
+   * @param key - The environment variable name.
+   * @returns The int value of the variable.
+   * @throws Error if unable to process the key.
+   */
+  private _getEnvAsInt(env: NodeJS.ProcessEnv, key: string): number {
     if (env[key] !== undefined) {
-      const ret = this._parseInt(env[key])
+      const ret = this._parseInt(env[key]);
       if (ret !== undefined) {
-        return ret
+        return ret;
       }
     }
-    throw Error(`${key} is not set in env or is not a string.`)
+    throw Error(`${key} is not set in env or is not a string.`);
   }
 
   /**
    * Returns undefined if string is empty or undefined.
-   *
-   * @param raw - The string to be parsed
-   * @returns The string or undefined
+   * @param raw - The string to be parsed.
+   * @returns The string or undefined.
    */
   private _parseString(raw: string | undefined): string | undefined {
     if (raw === undefined || raw === '') {
@@ -108,9 +130,8 @@ export default class Config {
 
   /**
    * Returns undefined if Integer is not a number or undefined.
-   *
-   * @param raw - The string to be parsed
-   * @returns The string or undefined
+   * @param raw - The string to be parsed.
+   * @returns The string or undefined.
    */
   private _parseInt(raw: string | undefined): number | undefined {
     if (raw === undefined) {

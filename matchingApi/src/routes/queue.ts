@@ -1,14 +1,16 @@
-import axios, { AxiosError } from 'axios';
-import express, { NextFunction, Request, Response } from 'express';
+/**
+ * @file Route file for matching-service.
+ */
+import axios from 'axios';
+import express from 'express';
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import Config from '../dataStructs/config';
-import questionType from '../dataStructs/questionType';
-import {
-  verifyJwt,
-  parseUserInput,
-} from '../helper/helper';
-import { queueInfo, queueInfoModel } from '../mongoModels/queueInfo';
-import languageType from '../dataStructs/languageType';
+import { LanguageType } from '../dataStructs/languageType';
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import QuestionType from '../dataStructs/questionType';
+import { parseUserInput, verifyJwt } from '../helper/helper';
+import { queueInfoModel } from '../mongoModels/queueInfo';
 
 const router = express.Router();
 const config = Config.get();
@@ -45,7 +47,7 @@ router.get('/', verifyJwt, async (req, res) => {
         data: checkQueue.data, // checkRoom does not give u what to post
       });
     } else {
-      console.log("Unknown queue status")
+      console.log('Unknown queue status');
       res.status(checkRoom.status).json({
         status: checkRoom.status,
         message: checkRoom.message,
@@ -54,7 +56,7 @@ router.get('/', verifyJwt, async (req, res) => {
     }
   } else {
     // i actually don't know what checkQueue brings you here
-    console.log("Unknown queue status")
+    console.log('Unknown queue status');
     res.status(checkQueue.status).json({
       status: checkQueue.status,
       message: checkQueue.message,
@@ -65,7 +67,6 @@ router.get('/', verifyJwt, async (req, res) => {
 
 // Strictly to join Queue.
 router.post('/join', verifyJwt, async (req, res) => {
-
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
@@ -94,11 +95,10 @@ router.post('/join', verifyJwt, async (req, res) => {
 
       const complexity: string = req.query.complexity as string;
 
-      const categories: Array<string>  = req.query
-          .categories as Array<string>;
+      const categories: Array<string> = req.query.categories as Array<string>;
 
       const language: string = req.query.language as string;
-      
+
       const filter = {
         complexity: complexity,
         categories: categories,
@@ -117,10 +117,11 @@ router.post('/join', verifyJwt, async (req, res) => {
         })
         .exec();
 
-      // I found at least one preference match, and (have same difficulty and language)
+      // I found at least one preference match,
+      // and (have same difficulty and language)
       if (samePrefUser) {
-
-        // Find out what other preferences match (again match one preference first)
+        // Find out what other preferences match
+        // (again match one preference first)
         const matchedValues: string[] = samePrefUser.categories.filter(
           (value) => userPref.categories.includes(value),
         );
@@ -132,40 +133,35 @@ router.post('/join', verifyJwt, async (req, res) => {
         const categoryParam = matchedValues
           .map((item) => `category[]=${item}`)
           .join('&');
-        const languageParam = `language=${userPref.language}`
+        const languageParam = `language=${userPref.language}`;
 
         const questionID = await getQuestion(
           baseUrl,
           complexityParam,
           categoryParam,
-          languageParam
+          languageParam,
         );
 
-        if (questionID.id == null) {
+        if (questionID == undefined || questionID.id == null) {
+          console.error('QuestionID returned null at /join');
           res
-            .status(questionID.json.status)
-            .send(questionID.json.message);
+            .status(400)
+            .json({ message: 'Unable to get questions at this time' });
+          return;
         }
 
         // Close socket here Todo: Socket
         const roomBaseUrl = config.roomServiceURL + '/room-service/rooms';
         const roomCreateJson = {
-          'user-ids': [ Number(uid), Number(samePrefUser.userID)],
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'user-ids': [Number(uid), Number(samePrefUser.userID)],
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           'question-id': questionID.id,
-          'question-lang-slug' : userPref.language
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          'question-lang-slug': userPref.language,
         };
         try {
-          console.log('Creating Room');
           const roomRes = await axios.post(roomBaseUrl, roomCreateJson);
-          // _   _     _               
-          // | |_|_|___| |_ ___ ___ _ _ 
-          // |   | |_ -|  _| . |  _| | |
-          // |_|_|_|___|_| |___|_| |_  |
-          //                       |___|
-          // History is diverted to room-service's responsibility
-
-          console.log(roomRes.data)
-
           res.status(200).json({
             status: 200,
             message: 'Room Created',
@@ -203,9 +199,9 @@ router.post('/join', verifyJwt, async (req, res) => {
             status: 200,
             message: 'Joined Queue!',
             data: {
-              complexity : userPref.complexity,
+              complexity: userPref.complexity,
               categories: userPref.categories,
-              language: userPref.language
+              language: userPref.language,
             },
           });
         } catch (error) {
@@ -233,42 +229,54 @@ router.post('/join', verifyJwt, async (req, res) => {
   }
 });
 
-
 router.delete('/', verifyJwt, async (req, res) => {
   const uid = res.locals['user-id'];
   try {
     await queueInfoModel.findOneAndRemove({ userID: uid }).exec();
-    res.status(200).json({ message: "Received command to remove user from queue"})
+    res
+      .status(200)
+      .json({ message: 'Received command to remove user from queue' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error, unable to remove from queue" });
+    res
+      .status(500)
+      .json({ message: 'Server error, unable to remove from queue' });
   }
-})
+});
 
 router.delete('/:uid', async (req, res) => {
   try {
     await queueInfoModel.findOneAndRemove({ userID: req.params.uid }).exec();
-    res.status(200).json({ message: "Received command to remove user from queue"})
+    res
+      .status(200)
+      .json({ message: 'Received command to remove user from queue' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error, unable to remove from queue" });
+    res
+      .status(500)
+      .json({ message: 'Server error, unable to remove from queue' });
   }
-})
-
+});
 
 // Have FE to ask directly room-service
 async function inRoom(accessToken: string) {
   try {
-    const url =
-      config.roomServiceURL + '/room-service/room';
-    const result = await axios.get(url, { headers : { 'Cookie' : `access-token=${accessToken}` }});
-    
+    const url = config.roomServiceURL + '/room-service/room';
+    const result = await axios.get(url, {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      headers: { Cookie: `access-token=${accessToken}` },
+    });
+
     return { status: 200, message: 'In Room', data: result.data };
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response) {
         if (error.response.status == 404) {
-          return { status: error.response.status, message: 'Not In Room', data: undefined };
+          return {
+            status: error.response.status,
+            message: 'Not In Room',
+            data: undefined,
+          };
         }
       }
     }
@@ -298,8 +306,8 @@ async function inQueue(uid: string) {
         message: 'Not in Queue',
         data: {
           complexity: ['Easy', 'Medium', 'Hard'],
-          'categories': questionType.get(),
-          'language': languageType.get(),
+          categories: QuestionType.get(),
+          language: LanguageType.get(),
         },
       };
     }
@@ -313,42 +321,26 @@ async function getQuestion(
   baseUrl: string,
   complexityParam: string,
   categoryParam: string,
-  languageParam: string, 
+  languageParam: string,
 ) {
   try {
     // The expectations of what i recieve back from this link
     // as of October 21, 2023 is either 200 with the contents
     // or 200 without the contents. Where contents is `data : {}`
 
-    const getQuestion = await axios.get(
+    const question = await axios.get(
       baseUrl + complexityParam + '&' + languageParam + '&' + categoryParam,
     );
     // returned 200 and data not empty
-    if (getQuestion.data.data) {
+    if (question.data.data) {
       return {
-        id: getQuestion.data.data._id,
+        id: question.data.data._id,
         json: {
           status: 200,
           message: 'Obtained Question',
           data: undefined,
         },
       };
-    } else {
-      // returned 200 and data is empty
-      try {
-        // Because possible to get 200 but empty data, call for one question of same complexity
-        const getQuestionAny = await axios.get(baseUrl + complexityParam + '&' + languageParam);
-        return {
-          id: getQuestionAny.data.data._id,
-          json: {
-            status: 200,
-            message: 'Obtained Question',
-            data: undefined,
-          },
-        };
-      } catch (error) {
-        throw error;
-      }
     }
   } catch (error) {
     // Catch axios, and all other errors
