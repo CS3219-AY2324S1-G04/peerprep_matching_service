@@ -8,9 +8,6 @@ export default class Config {
 
   private static readonly _envMongoURI: string = 'MS_MONGO_URI';
 
-  private static readonly _envMongoAdminUser: string = 'MS_MONGO_ADMIN_USER';
-  private static readonly _envMongoAdminPass: string = 'MS_MONGO_ADMIN_PASS';
-
   private static readonly _envMongoUser: string = 'MS_MONGO_USER';
   private static readonly _envMongoPass: string = 'MS_MONGO_PASS';
 
@@ -40,14 +37,6 @@ export default class Config {
    * The collection to be created.
    */
   public readonly mongoCollection: string;
-  /**
-   * The admin user used to create the user account.
-   */
-  public readonly mongoAdmUser: string;
-  /**
-   * The admin password used to create the user account.
-   */
-  public readonly mongoAdmPass: string;
 
   /**
    * Constructs a Config and assigns to each field, the value stored in their
@@ -65,9 +54,7 @@ export default class Config {
       this.mongoPass = 'password';
       this.mongoDB = 'matchinginfo';
       this.mongoCollection = 'queueinfo';
-      this.mongoAdmUser = 'admin';
-      this.mongoAdmPass = 'password';
-      this.mongoURI = `mongodb://${this.mongoAdmUser}:${this.mongoAdmPass}@localhost:27017`;
+      this.mongoURI = `mongodb://admin:password@localhost:27017`;
     } else {
       this.mongoURI = this._getEnvAsString(env, Config._envMongoURI);
       this.mongoUser = this._getEnvAsString(env, Config._envMongoUser);
@@ -77,8 +64,6 @@ export default class Config {
         env,
         Config._envMongoCollection,
       );
-      this.mongoAdmUser = this._getEnvAsString(env, Config._envMongoAdminUser);
-      this.mongoAdmPass = this._getEnvAsString(env, Config._envMongoAdminPass);
     }
   }
 

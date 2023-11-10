@@ -23,14 +23,6 @@ services:
     environment:
       MS_MONGO_URI: mongodb://${MS_MONGO_ADMIN_USER}:${MS_MONGO_ADMIN_PASS}@matching_service_mongo:{MS_MONGO_PORT}
 
-      # Note: This is an account which has root access to create accounts and collection
-      # That is to say, if you are using your own Mongo and want to use this for initialization,
-      # Then you will need to change these.
-      # Else leave it as it is.
-      # mongodb://MS_MONGO_ADMIN_USER:MS_MONGO_ADMIN_PASS@MS_MONGO_HOST:MONGO_PORT/
-      MS_MONGO_ADMIN_USER: ${MS_MONGO_ADMIN_USER}
-      MS_MONGO_ADMIN_PASS: ${MS_MONGO_ADMIN_PASS}
-
       # Note: The following account will be created for services to aces via
       # mongodb://MS_MONGO_USER:MS_MONGO_PASS@MS_MONGO_HOST:MONGO_PORT/MONGO_DB
       MS_MONGO_USER: ${MS_MONGO_USER}
