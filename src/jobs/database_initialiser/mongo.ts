@@ -3,7 +3,8 @@
  */
 import mongoose, { ConnectOptions } from 'mongoose';
 
-import Config from '../dataStructs/config';
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import Config from './config';
 
 /** Represents the connection to a mongo instance. */
 export default class MongoClient {
@@ -41,17 +42,11 @@ export default class MongoClient {
     db.once('open', async () => {
       console.log(`Connected to mongodb.`);
 
-      // Create or access the "matchinginfo" database
-      // Equivalent of saying on mongosh 'use <MS_MONGO_DB`'
-      // or 'db.getSiblingDB(<MS_MONGO_DB>)'
-      const database = db.useDb(`${config.mongoDB}`);
-
       // Placed items in promises to ensure that they are all
       // completed before disconnect happens
       const promises = [
-        this._createUser(config, database),
-        this._createCollection(config, database),
-        this._setTTL(config, database),
+        this._createCollection(config, db),
+        this._setTTL(config, db),
       ];
       await Promise.all(promises);
 
@@ -61,42 +56,6 @@ export default class MongoClient {
       );
       db.close();
     });
-  }
-
-  /**
-   * Creates the user in mongoDB which matching-service-api access.
-   *
-   * That is to grant read-write access to mongo via
-   * `mongodb://<MS_MONGO_USER>:<MS_MONGO_PASS>@<MS_MONGO_HOST>:<MS_MONGO_PORT>/<MS_MONGO_DB>`.
-   *
-   * Essentially, this is what the code is doing:
-   * `if (db.getUser(<MS_MONGO_USER>) == null)`
-   * `db.createUser({ user: <MS_MONGO_USER>,
-   * pwd: <MS_MONGO_PASS>, roles: [ "readWrite" ] }`.
-   * @param config - The configuration file containing env properties.
-   * @param req - The authenticated connection that has root level privileges.
-   */
-  private async _createUser(config: Config, req: mongoose.Connection) {
-    console.log(' -- Account setup start --');
-    const query = await req.db.command({
-      usersInfo: { user: `${config.mongoUser}`, db: `${config.mongoDB}` },
-    });
-
-    if (query.users != undefined) {
-      if (query.users.length === 0) {
-        const user = await req.db.command({
-          createUser: `${config.mongoUser}`,
-          pwd: `${config.mongoPass}`,
-          roles: [{ db: `${config.mongoDB}`, role: 'readWrite' }],
-        });
-        if (user.ok) {
-          console.log('Account for API service has been created!');
-        }
-      } else {
-        console.log('Account already exists.');
-      }
-    }
-    console.log(' -- Account setup complete --');
   }
 
   /**

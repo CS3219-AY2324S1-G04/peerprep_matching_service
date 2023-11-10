@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matching-service-database-client-config-map
+  namespace: peerprep
+data:
+  mongo-collection: match_candidates

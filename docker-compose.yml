@@ -1,89 +1,64 @@
-version: "3"
+version: '3'
 services:
-  #Matching Service
   matching_service_mongo:
-    container_name: matching_service_mongo
-    image: mongo:latest
-    restart: unless-stopped
-    environment:
-      # This is admin account. 
-      MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_ADMIN_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_ADMIN_PASS}
-
+    image: mongo:7-jammy
     networks:
       - peerprep
+    environment:
+      # This is admin account.
+      MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_PASS}
+      MS_MONGO_DB: ${MS_MONGO_DB}
+    volumes:
+      - ./mongodb/docker-entrypoint-initdb.d/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    restart: unless-stopped
 
   matching_service_mongo_init:
-    container_name: matching_service_mongo_init
-    depends_on:
-      - matching_service_mongo
-    image: matching_service_mongo_init
-    build: ./matchingMongoInit
-    environment:
-      MS_MONGO_URI : mongodb://${MS_MONGO_ADMIN_USER}:${MS_MONGO_ADMIN_PASS}@matching_service_mongo:{MS_MONGO_PORT}
-
-      # Note: This is an account which has root access to create accounts and collection
-      # That is to say, if you are using your own Mongo and want to use this for initialization, 
-      # Then you will need to change these.
-      # Else leave it as it is.
-      # mongodb://MS_MONGO_ADMIN_USER:MS_MONGO_ADMIN_PASS@MS_MONGO_HOST:MONGO_PORT/
-      MS_MONGO_ADMIN_USER: ${MS_MONGO_ADMIN_USER}
-      MS_MONGO_ADMIN_PASS: ${MS_MONGO_ADMIN_PASS}
-
-      # Note: The following account will be created for services to aces via 
-      # mongodb://MS_MONGO_USER:MS_MONGO_PASS@MS_MONGO_HOST:MONGO_PORT/MONGO_DB
-      MS_MONGO_USER: ${MS_MONGO_USER}
-      MS_MONGO_PASS: ${MS_MONGO_PASS}
-      
-      MS_MONGO_DB: ${MS_MONGO_DB}
-      MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
-
-      QUEUE_EXPIRY: ${QUEUE_EXPIRY}
-
-      # This is admin account. 
-      MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_ADMIN_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_ADMIN_PASS}
-
+    image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_database_initialiser
+    build:
+      context: .
+      dockerfile: ./dockerfiles/database_initialiser.dockerfile
     networks:
       - peerprep
-
-  matching_service_api:
-    container_name: matching_service_api
+    environment:
+      MS_MONGO_URI: mongodb://${MS_MONGO_USER}:${MS_MONGO_PASS}@matching_service_mongo:27017/${MS_MONGO_DB}?authSource=admin
+      MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
+      QUEUE_EXPIRY: ${QUEUE_EXPIRY}
     depends_on:
       - matching_service_mongo
-    image: matching_service_api
-    build: ./matchingApi
-    restart: unless-stopped
+    restart: on-failure
+
+  matching_service_api:
+    image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_api
+    build:
+      context: .
+      dockerfile: ./dockerfiles/api.dockerfile
+    networks:
+      - peerprep
+    ports:
+      - '${MS_EXPRESS_PORT}:${MS_EXPRESS_PORT}'
     environment:
       # API
       NODE_ENV: ${NODE_ENV}
       MS_EXPRESS_PORT: ${MS_EXPRESS_PORT}
 
       # DB
-      MS_MONGO_URI : mongodb://${MS_MONGO_USER}:${MS_MONGO_PASS}@matching_service_mongo:{MS_MONGO_PORT}/${MS_MONGO_DB}
-
+      MS_MONGO_URI: mongodb://${MS_MONGO_USER}:${MS_MONGO_PASS}@matching_service_mongo:27017/${MS_MONGO_DB}?authSource=admin
       MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
-
       QUEUE_EXPIRY: ${QUEUE_EXPIRY}
 
       # Other Services
-      SERVICE_USER_HOST: user_service_api
+      SERVICE_USER_HOST: ${SERVICE_USER_HOST}
       SERVICE_USER_PORT: ${SERVICE_USER_PORT}
-
-      SERVICE_QUESTION_HOST: question_service_api
+      SERVICE_QUESTION_HOST: ${SERVICE_QUESTION_HOST}
       SERVICE_QUESTION_PORT: ${SERVICE_QUESTION_PORT}
-
-      SERVICE_ROOM_HOST: room_service_api
+      SERVICE_ROOM_HOST: ${SERVICE_ROOM_HOST}
       SERVICE_ROOM_PORT: ${SERVICE_ROOM_PORT}
-
-    networks:
-      - peerprep
-      
-    ports:
-      - "${MS_EXPRESS_PORT}:${MS_EXPRESS_PORT}"
+    depends_on:
+      - matching_service_mongo
+    restart: unless-stopped
 
 networks:
   peerprep:
     external: true
     name: peerprep
-

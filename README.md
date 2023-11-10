@@ -1,46 +1,61 @@
 # PeerPrep Matching Service
 
-Handles the queuing and matching of users.
+Handles the matching of users.
+
+- [Quickstart Guide](#quickstart-guide)
+- [Docker Images](#docker-images)
+  - [API](#api)
+  - [Database Initialiser](#database-initialiser)
+- [REST API](#rest-api)
+  - [Check if the user is in the queue](#check-if-the-user-is-in-the-queue)
+  - [Join the user to the queue](#join-the-user-to-the-queue)
+  - [Remove the user to the queue](#remove-the-user-to-the-queue)
+  - [Remove a particular user from the queue](#remove-a-particular-user-from-the-queue)
 
 ## Quickstart Guide
 
+Note that Matching Service relies on User Service, Question Service, and Room Service. Please ensure that these services are up and running before attempting to start Matching Service.
+
 1. Clone this repository.
-2. Modify the `.env` file as per needed. Refer to [Environment Variables](#environment-variables) for the variables we suggest changing.
-3. Build the npm images and docker instances by running: `./run.sh`
-4. Start the docker containers by running: `docker compose up`
-5. If you are using , initialize MongoDB by starting MongoDB and running the mongo initializer container.
-6. If you have an existing MongoDB, please ensure that you edit the environment variables to allow the API to access the database.
+2. Build the docker images by running: `./build_images.sh`
+3. Modify the ".env" file as per needed. Refer to [Docker Images](#docker-images) for the list of environment variables.
+4. Create the docker containers by running: `docker compose up`
 
-## Environment Variables
+## Docker Images
 
-### APP
+### API
 
-- `NODE_ENV` - Set this to an empty string
-- `MS_EXPRESS_PORT` - Port for this API server
-- `QUEUE_EXPIRY` - TTL for the document. Due to this using Mongo's auto delete, collection may take up to one additional minute to get deleted. 
-- `JwtKey` - Do not change or write into this
-- `SERVICE_USER_PORT` - port of the user service
-- `SERVICE_QUESTION_PORT` - port of the question service
-- `SERVICE_ROOM_PORT` - port of the room service
-- 
-### MONGO
+**Name:** ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_api
 
-- `MS_MONGO_URI` - The URI to connect to
+**Description:** Runs the REST API.
+
+**Environment Variables:**
+
+- `NODE_ENV` - Mode the app is running on ("development" or "production").
+- `MS_EXPRESS_PORT` - Port to listen on.
+- `MS_MONGO_URI` - URI for connecting to the Mongo database.
   - Example `mongodb://<user>:<pass>@<address>:<port>/<database>`
-- `MS_MONGO_COLLECTION` - Name of the Mongo collection
+- `MS_MONGO_COLLECTION` - Name of the Mongo collection.
+- `QUEUE_EXPIRY` - Number of milliseconds a user's matching request will remain in the queue before timing out. Due to this using Mongo's auto delete, collection may take up to one additional minute to get deleted.
+- `SERVICE_USER_HOST` - Address of the User Service host.
+- `SERVICE_USER_PORT` - Port the User Service is listening on.
+- `SERVICE_QUESTION_HOST` - Address of the Question Service host.
+- `SERVICE_QUESTION_PORT` - Port the Question Service is listening on.
+- `SERVICE_ROOM_HOST` - Address of the Room Service host.
+- `SERVICE_ROOM_PORT` - Port the Room Service is listening on.
 
-### MONGO INIT
+### Database Initialiser
 
-- `MS_MONGO_URI` - The URI to connect to
-    - Example `mongodb://<MS_MONGO_ADMIN_USER>:<MS_MONGO_ADMIN_PASS>@<address>:<port>`
-- `MONGO_USER` - Username of the Mongo database
-- `MONGO_PASS` - Password of the Mongo database
-- `MS_MONGO_ADMIN_USER` - Username of the Mongo admin account
-- `MS_MONGO_ADMIN_PASS` - Password of the Mongo admin account
-- `MS_MONGO_PORT` - The port of the Mongo database
-- `MS_MONGO_DB` - Name of the Mongo database 
-- `MS_MONGO_COLLECTION` - Name of the Mongo collection
+**Name:** ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_database_initialiser
 
+**Description:** Initialises the database by creating and setting up the necessary collections.
+
+**Environment Variables:**
+
+- `MS_MONGO_URI` - URI for connecting to the Mongo database.
+  - Example `mongodb://<user>:<pass>@<address>:<port>/<database>`
+- `MS_MONGO_COLLECTION` - Name of the Mongo collection.
+- `QUEUE_EXPIRY` - Number of milliseconds a user's matching request will remain in the queue before timing out. Due to this using Mongo's auto delete, collection may take up to one additional minute to get deleted.
 
 ## REST API
 
@@ -54,8 +69,8 @@ Handles the queuing and matching of users.
 
 **Returns**
 
-- `200` - { message: "In queue" } 
-- `303` - { message: "In room" } 
+- `200` - { message: "In queue" }
+- `303` - { message: "In room" }
 - `401` - { message: "Not authorized" }
 - `404` - { message: "Not in queue", data : { difficulty : string[], categories : string[], language : string[] } }
 - `500` - { message: "Sever Error" }
@@ -70,13 +85,13 @@ Handles the queuing and matching of users.
 
 **Parameters**
 
-- `difficulty` - The complexity of the question. 
+- `difficulty` - The complexity of the question.
 - `categories[]` - The categories of the question - Can be multiple
 - `language` - The programming language of the question
 
 **Returns**
 
-- `200` - { message: "Joined queue" }. 
+- `200` - { message: "Joined queue" }.
 - `303` - { message: "In room" }
 - `401` - { message: "Not authorized" }
 - `409` - { message: "Already in queue" }
@@ -103,7 +118,7 @@ Will lead to paring with people of the a randomized complexity and any category 
 
 **Returns**
 
-- `200` - { message: "Received message" }. 
+- `200` - { message: "Received message" }.
 - `401` - { message: "Not authorized" }
 
 ### Remove a particular user from the queue

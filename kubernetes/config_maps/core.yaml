@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matching-service-core-config-map
+  namespace: peerprep
+data:
+  queue-expiry: '30000'
