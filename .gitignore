@@ -1,5 +1,5 @@
 .vs/
 .vscode/
 build/
-api/node_modules/
-node_modules
+docker_build/
+node_modules/

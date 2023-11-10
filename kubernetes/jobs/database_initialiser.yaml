@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: matching-service-database-initialiser-job
+  namespace: peerprep
+spec:
+  template:
+    metadata:
+      namespace: peerprep
+      labels:
+        app: matching-service-database-initialiser
+    spec:
+      containers:
+        - name: matching-service-database-initialiser
+          image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_database_initialiser
+          env:
+            - name: MS_MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: matching-service-database-initialiser-secret
+                  key: mongo-admin-uri
+            - name: MS_MONGO_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: matching-service-database-initialiser-config-map
+                  key: mongo-user-username
+            - name: MS_MONGO_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: matching-service-database-initialiser-secret
+                  key: mongo-user-pass
+            - name: MS_MONGO_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: matching-service-database-client-config-map
+                  key: mongo-db
+            - name: MS_MONGO_COLLECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: matching-service-database-client-config-map
+                  key: mongo-collection
+            - name: QUEUE_EXPIRY
+              valueFrom:
+                configMapKeyRef:
+                  name: matching-service-core-config-map
+                  key: queue-expiry
+      restartPolicy: OnFailure
+  backoffLimit: 10

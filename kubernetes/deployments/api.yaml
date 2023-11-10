@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matching-service-api-deployment
+  namespace: peerprep
+  labels:
+    app: matching-service-api
+spec:
+  selector:
+    matchLabels:
+      app: matching-service-api
+  template:
+    metadata:
+      namespace: peerprep
+      labels:
+        app: matching-service-api
+    spec:
+      containers:
+        - name: matching-service-api
+          image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_api
+          ports:
+            - containerPort: 9002
+          env:
+            - name: MS_MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: matching-service-api-secret
+                  key: mongo-user-uri
+            - name: MS_MONGO_COLLECTION
+              valueFrom:
+                configMapKeyRef:
+                  name: matching-service-database-client-config-map
+                  key: mongo-collection
+            - name: QUEUE_EXPIRY
+              valueFrom:
+                configMapKeyRef:
+                  name: matching-service-core-config-map
+                  key: queue-expiry
+            - name: SERVICE_USER_HOST
+              value: user-service-api-service
+            - name: SERVICE_USER_PORT
+              value: '9000'
+            - name: SERVICE_QUESTION_HOST
+              value: question-service-api-service
+            - name: SERVICE_QUESTION_PORT
+              value: '9001'
+            - name: SERVICE_ROOM_HOST
+              value: room-service-api-service
+            - name: SERVICE_ROOM_PORT
+              value: '9003'
+            - name: MS_EXPRESS_PORT
+              value: '9002'
+            - name: NODE_ENV
+              value: production
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 256Mi
+              cpu: 500m
