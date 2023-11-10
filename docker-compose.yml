@@ -33,10 +33,6 @@ services:
 
       QUEUE_EXPIRY: ${QUEUE_EXPIRY}
 
-      # This is admin account.
-      MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_ADMIN_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_ADMIN_PASS}
-
     networks:
       - peerprep
 
