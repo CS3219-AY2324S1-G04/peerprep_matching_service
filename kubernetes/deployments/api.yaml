@@ -24,8 +24,8 @@ spec:
             - name: MS_MONGO_URI
               valueFrom:
                 secretKeyRef:
-                  name: matching-service-api-secret
-                  key: mongo-user-uri
+                  name: matching-service-database-client-secret
+                  key: mongo-uri
             - name: MS_MONGO_COLLECTION
               valueFrom:
                 configMapKeyRef:
