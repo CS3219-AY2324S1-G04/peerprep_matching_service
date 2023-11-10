@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   #Matching Service
   matching_service_mongo:
@@ -6,7 +6,7 @@ services:
     image: mongo:latest
     restart: unless-stopped
     environment:
-      # This is admin account. 
+      # This is admin account.
       MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_ADMIN_PASS}
 
@@ -14,33 +14,34 @@ services:
       - peerprep
 
   matching_service_mongo_init:
-    container_name: matching_service_mongo_init
     depends_on:
       - matching_service_mongo
-    image: matching_service_mongo_init
-    build: ./matchingMongoInit
+    image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_database_initialiser
+    build:
+      context: .
+      dockerfile: ./dockerfiles/database_initialiser.dockerfile
     environment:
-      MS_MONGO_URI : mongodb://${MS_MONGO_ADMIN_USER}:${MS_MONGO_ADMIN_PASS}@matching_service_mongo:{MS_MONGO_PORT}
+      MS_MONGO_URI: mongodb://${MS_MONGO_ADMIN_USER}:${MS_MONGO_ADMIN_PASS}@matching_service_mongo:{MS_MONGO_PORT}
 
       # Note: This is an account which has root access to create accounts and collection
-      # That is to say, if you are using your own Mongo and want to use this for initialization, 
+      # That is to say, if you are using your own Mongo and want to use this for initialization,
       # Then you will need to change these.
       # Else leave it as it is.
       # mongodb://MS_MONGO_ADMIN_USER:MS_MONGO_ADMIN_PASS@MS_MONGO_HOST:MONGO_PORT/
       MS_MONGO_ADMIN_USER: ${MS_MONGO_ADMIN_USER}
       MS_MONGO_ADMIN_PASS: ${MS_MONGO_ADMIN_PASS}
 
-      # Note: The following account will be created for services to aces via 
+      # Note: The following account will be created for services to aces via
       # mongodb://MS_MONGO_USER:MS_MONGO_PASS@MS_MONGO_HOST:MONGO_PORT/MONGO_DB
       MS_MONGO_USER: ${MS_MONGO_USER}
       MS_MONGO_PASS: ${MS_MONGO_PASS}
-      
+
       MS_MONGO_DB: ${MS_MONGO_DB}
       MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
 
       QUEUE_EXPIRY: ${QUEUE_EXPIRY}
 
-      # This is admin account. 
+      # This is admin account.
       MONGO_INITDB_ROOT_USERNAME: ${MS_MONGO_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MS_MONGO_ADMIN_PASS}
 
@@ -48,11 +49,12 @@ services:
       - peerprep
 
   matching_service_api:
-    container_name: matching_service_api
     depends_on:
       - matching_service_mongo
-    image: matching_service_api
-    build: ./matchingApi
+    image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_api
+    build:
+      context: .
+      dockerfile: ./dockerfiles/api.dockerfile
     restart: unless-stopped
     environment:
       # API
@@ -60,7 +62,7 @@ services:
       MS_EXPRESS_PORT: ${MS_EXPRESS_PORT}
 
       # DB
-      MS_MONGO_URI : mongodb://${MS_MONGO_USER}:${MS_MONGO_PASS}@matching_service_mongo:{MS_MONGO_PORT}/${MS_MONGO_DB}
+      MS_MONGO_URI: mongodb://${MS_MONGO_USER}:${MS_MONGO_PASS}@matching_service_mongo:{MS_MONGO_PORT}/${MS_MONGO_DB}
 
       MS_MONGO_COLLECTION: ${MS_MONGO_COLLECTION}
 
@@ -78,12 +80,11 @@ services:
 
     networks:
       - peerprep
-      
+
     ports:
-      - "${MS_EXPRESS_PORT}:${MS_EXPRESS_PORT}"
+      - '${MS_EXPRESS_PORT}:${MS_EXPRESS_PORT}'
 
 networks:
   peerprep:
     external: true
     name: peerprep
-

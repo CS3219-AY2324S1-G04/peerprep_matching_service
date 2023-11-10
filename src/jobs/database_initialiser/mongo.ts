@@ -3,7 +3,8 @@
  */
 import mongoose, { ConnectOptions } from 'mongoose';
 
-import Config from '../dataStructs/config';
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import Config from './config';
 
 /** Represents the connection to a mongo instance. */
 export default class MongoClient {
