@@ -25,6 +25,14 @@ Handles the queuing and matching of users.
 - 
 ### MONGO
 
+- `MS_MONGO_URI` - The URI to connect to
+  - Example `mongodb://<user>:<pass>@<address>:<port>/<database>`
+- `MS_MONGO_COLLECTION` - Name of the Mongo collection
+
+### MONGO INIT
+
+- `MS_MONGO_URI` - The URI to connect to
+    - Example `mongodb://<MS_MONGO_ADMIN_USER>:<MS_MONGO_ADMIN_PASS>@<address>:<port>`
 - `MONGO_USER` - Username of the Mongo database
 - `MONGO_PASS` - Password of the Mongo database
 - `MS_MONGO_ADMIN_USER` - Username of the Mongo admin account

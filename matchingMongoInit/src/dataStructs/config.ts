@@ -4,7 +4,7 @@
 
 /** Represents the app's configs. */
 export default class Config {
-  /** Variable names that are found in environment  */
+  /** Variable names that are found in environment.  */
 
   private static readonly _envMongoURI: string = 'MS_MONGO_URI';
 
@@ -54,7 +54,7 @@ export default class Config {
    * corresponding environment variable. If an environment variable does not
    * have a valid value, assigns a default value instead.
    * @param env - Environment variables.
-   * @param debug
+   * @param debug - For non docker mode.
    */
   public constructor(
     env: NodeJS.ProcessEnv = process.env,
