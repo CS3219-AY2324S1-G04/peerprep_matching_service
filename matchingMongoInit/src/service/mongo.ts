@@ -8,7 +8,7 @@ import Config from '../dataStructs/config';
 /** Represents the connection to a mongo instance. */
 export default class MongoClient {
   /**
-   * @param config
+   * @param config - The configuration file containing env properties.
    */
   public run(config: Config): void {
     mongoose.connect(config.mongoURI, {
@@ -73,7 +73,7 @@ export default class MongoClient {
    * `if (db.getUser(<MS_MONGO_USER>) == null)`
    * `db.createUser({ user: <MS_MONGO_USER>,
    * pwd: <MS_MONGO_PASS>, roles: [ "readWrite" ] }`.
-   * @param config
+   * @param config - The configuration file containing env properties.
    * @param req - The authenticated connection that has root level privileges.
    */
   private async _createUser(config: Config, req: mongoose.Connection) {
@@ -106,9 +106,9 @@ export default class MongoClient {
    * shape the database.
    * This will throw error if you are trying to replace a collection.
    * See uncommented code.
-   * @param config
+   * @param config - The configuration file containing env properties.
    * @param req - The authenticated Connection that has root level privileges.
-   * @param dbAutoValidate
+   * @param dbAutoValidate - Forces insertion to be type checked by Mongo.
    */
   private async _createCollection(
     config: Config,
@@ -169,30 +169,6 @@ export default class MongoClient {
             console.error(error);
           }
         });
-
-      // await req.createCollection(`languagetype`, undefined)
-      //   .then(() => console.log("Collection created or Exists"))
-      //   .catch((error) => {
-      //     if (error.codeName == 'NamespaceExists') {
-      //       console.error('Existing Collection exists for language')
-      //       console.error(error.message)
-      //     } else {
-      //       console.error('Uncaught error')
-      //       console.error(error)
-      //     }
-      //   });
-
-      // await req.createCollection(`questiontype`, undefined)
-      //   .then(() => console.log("Collection created or Exists"))
-      //   .catch((error) => {
-      //     if (error.codeName == 'NamespaceExists') {
-      //       console.error('Existing Collection exists for questions')
-      //       console.error(error.message)
-      //     } else {
-      //       console.error('Uncaught error')
-      //       console.error(error)
-      //     }
-      //   });
     } else {
       await req
         .createCollection(`${config.mongoCollection}`, undefined)

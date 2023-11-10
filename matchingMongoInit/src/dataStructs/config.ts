@@ -20,32 +20,32 @@ export default class Config {
   /** Copies from Environment and save into these variable names. */
 
   /**
-   *
+   * Connection to the mongo database.
    */
   public readonly mongoURI: string;
 
   /**
-   *
+   * Username required to create the database user.
    */
   public readonly mongoUser: string;
   /**
-   *
+   * Password required to create the database user.
    */
   public readonly mongoPass: string;
   /**
-   *
+   * The database to be created.
    */
   public readonly mongoDB: string;
   /**
-   *
+   * The collection to be created.
    */
   public readonly mongoCollection: string;
   /**
-   *
+   * The admin user used to create the user account.
    */
   public readonly mongoAdmUser: string;
   /**
-   *
+   * The admin password used to create the user account.
    */
   public readonly mongoAdmPass: string;
 
