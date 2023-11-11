@@ -2,27 +2,19 @@
 
 Handles the matching of users.
 
-- [PeerPrep Matching Service](#peerprep-matching-service)
-  - [Quickstart Guide](#quickstart-guide)
-  - [Build Script](#build-script)
-  - [Architecture](#architecture)
-  - [Docker Images](#docker-images)
-    - [API](#api)
-    - [Database Initialiser](#database-initialiser)
-  - [REST API](#rest-api)
-    - [Check if the user is in the queue](#check-if-the-user-is-in-the-queue)
-    - [Join the user to the queue](#join-the-user-to-the-queue)
-    - [Remove the user to the queue](#remove-the-user-to-the-queue)
-    - [Remove a particular user from the queue](#remove-a-particular-user-from-the-queue)
-
-## Quickstart Guide
-
-Note that Matching Service relies on User Service, Question Service, and Room Service. Please ensure that these services are up and running before attempting to start Matching Service.
-
-1. Clone this repository.
-2. Build the docker images by running: `./build_images.sh`
-3. Modify the ".env" file as per needed. Refer to [Docker Images](#docker-images) for the list of environment variables.
-4. Create the docker containers by running: `docker compose up`
+- [Build Script](#build-script)
+- [Architecture](#architecture)
+- [Docker Images](#docker-images)
+  - [API](#api)
+  - [Database Initialiser](#database-initialiser)
+- [Deployment](#deployment)
+  - [Kubernetes Deployment](#kubernetes-deployment)
+  - [Docker Compose Deployment](#docker-compose-deployment)
+- [REST API](#rest-api)
+  - [Check if the user is in the queue](#check-if-the-user-is-in-the-queue)
+  - [Join the user to the queue](#join-the-user-to-the-queue)
+  - [Remove the user to the queue](#remove-the-user-to-the-queue)
+  - [Remove a particular user from the queue](#remove-a-particular-user-from-the-queue)
 
 ## Build Script
 
@@ -34,7 +26,7 @@ Note that Matching Service relies on User Service, Question Service, and Room Se
 
 ## Architecture
 
-![](./images/architecture.png)
+![](./images/architecture.jpg)
 
 Legend:
 
@@ -43,6 +35,23 @@ Legend:
 - `#DA4026` Red items represents internal servers/containers that are temporary.
 - `#7FBA42` Green items represents internal servers/containers that are exposed.
 - `#2072B8` Blue items represents external servers/containers.
+
+**REST API Server**
+
+- Handles REST API requests.
+- Exposed to clients/servers outside the service.
+- Can be scaled horizontally.
+- Corresponds to the [API](#api) docker image.
+
+**Database Initialiser**
+
+- Creates and sets up the collection to be use for storing matching information.
+- Shuts down once it is done initialising the database.
+- Corresponds to the [Database Initialiser](#database-initialiser) docker image.
+
+**Database**
+
+- Database for storing matching information.
 
 ## Docker Images
 
@@ -79,6 +88,52 @@ Legend:
   - Example `mongodb://<user>:<pass>@<address>:<port>/<database>`
 - `MS_MONGO_COLLECTION` - Name of the Mongo collection.
 - `QUEUE_EXPIRY` - Number of milliseconds a user's matching request will remain in the queue before timing out. Due to this using Mongo's auto delete, collection may take up to one additional minute to get deleted.
+
+## Deployment
+
+### Kubernetes Deployment
+
+This is the main deployment method for production.
+
+**Note:**
+
+- The database is hosted externally, not within the Kubernetes cluster.
+
+**Prerequisite**
+
+- Docker images must be pushed to the container registry and made public.
+  - To push to the container registry (assuming one has the necessary permissions), run: `./build_images.sh -p`
+  - To make the images public, change the visibility of the image on [GitHub](https://github.com/orgs/CS3219-AY2324S1-G04/packages).
+- Kubernetes cluster must be setup as specified in the [main repository](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g04#deployment).
+- User Service, Question Service, and Room Service must be deployed within the Kubernetes cluster.
+
+**Steps:**
+
+1. Ensure the "peerprep" namespace has been created: `kubectl create namespace peerprep`
+2. Navigate to the "kubernetes" directory: `cd kubernetes`
+3. Deploy the Kubernetes objects: `./deploy.sh`
+    - To delete the Kubernetes objects, run: `./delete.sh`
+
+### Docker Compose Deployment
+
+This is intended for development use only. It is meant to make developing other services easier.
+
+**Note:**
+
+- No horizontal auto scaling is provided.
+- The database is created by Docker compose and data is not backed up.
+
+**Prerequisite**
+
+- Docker images must be built.
+  - To build the images, run: `./build_images.sh`
+- User Service, Question Service, and Room Service must be deployed via Docker compose.
+
+**Steps:**
+
+1. Ensure that the "peerprep" network exist: `docker network create -d bridge peerprep`
+2. Create the docker containers: `docker compose up`
+    - To delete the docker containers, run: `docker compose down`
 
 ## REST API
 
