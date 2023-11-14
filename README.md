@@ -11,10 +11,9 @@ Handles the matching of users.
   - [Kubernetes Deployment](#kubernetes-deployment)
   - [Docker Compose Deployment](#docker-compose-deployment)
 - [REST API](#rest-api)
-  - [Check if the user is in the queue](#check-if-the-user-is-in-the-queue)
-  - [Join the user to the queue](#join-the-user-to-the-queue)
-  - [Remove the user to the queue](#remove-the-user-to-the-queue)
-  - [Remove a particular user from the queue](#remove-a-particular-user-from-the-queue)
+  - [Check if a User is in the Queue](#check-if-a-user-is-in-the-queue)
+  - [Add a User to the Queue](#add-a-user-to-the-queue)
+  - [Remove a User from the Queue](#remove-a-user-from-the-queue)
 
 ## Build Script
 
@@ -39,7 +38,6 @@ Legend:
 **REST API Server**
 
 - Handles REST API requests.
-- Exposed to clients/servers outside the service.
 - Can be scaled horizontally.
 - Corresponds to the [API](#api) docker image.
 
@@ -137,9 +135,11 @@ This is intended for development use only. It is meant to make developing other 
 
 ## REST API
 
-### Check if the user is in the queue
+### Check if a User is in the Queue
 
 > [GET] `/matching-service/queue/`
+
+Checks if the user, who owns the specified access token, is in the queue.
 
 **Cookies**
 
@@ -153,9 +153,13 @@ This is intended for development use only. It is meant to make developing other 
 - `404` - { message: "Not in queue", data : { difficulty : string[], categories : string[], language : string[] } }
 - `500` - { message: "Sever Error" }
 
-### Join the user to the queue
+### Add a User to the Queue
 
 > [POST] `/matching-service/queue/join`
+
+Adds the user, who owns the specified access token, to the queue.
+
+The specified matching criteria are taken into account when matching users.
 
 **Cookies**
 
@@ -186,7 +190,9 @@ No Complexity and no Categories provided, or bad request sent
 Will lead to paring with people of the a randomized complexity and any category and python3 as language.
 
 
-### Remove the user to the queue
+### Remove a User from the Queue
+
+Removes the user, who owns the specified access token, from the queue.
 
 > [DELETE] `/matching-service/queue/`
 
@@ -198,9 +204,3 @@ Will lead to paring with people of the a randomized complexity and any category 
 
 - `200` - { message: "Received message" }.
 - `401` - { message: "Not authorized" }
-
-### Remove a particular user from the queue
-
-> [DELETE] `/matching-service/queue/:uid`
-
-Primarily for testing
