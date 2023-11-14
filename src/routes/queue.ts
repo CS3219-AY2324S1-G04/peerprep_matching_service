@@ -244,20 +244,6 @@ router.delete('/', verifyJwt, async (req, res) => {
   }
 });
 
-router.delete('/:uid', async (req, res) => {
-  try {
-    await queueInfoModel.findOneAndRemove({ userID: req.params.uid }).exec();
-    res
-      .status(200)
-      .json({ message: 'Received command to remove user from queue' });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: 'Server error, unable to remove from queue' });
-  }
-});
-
 // Have FE to ask directly room-service
 async function inRoom(accessToken: string) {
   try {
