@@ -228,7 +228,7 @@ router.post('/join', verifyJwt, async (req, res) => {
               complexity: userPref.complexity,
               categories: userPref.categories,
               language: userPref.language,
-              expireAt: expiry.toISOString,
+              expireAt: expiry.toISOString(),
             },
           });
         } catch (error) {
@@ -308,11 +308,25 @@ async function inQueue(uid: string) {
     const userInQueue = await queueInfoModel.findOne({ userID: uid }).exec();
 
     if (userInQueue) {
-      return {
-        status: 200,
-        message: 'In Queue!',
-        data: userInQueue.toJSON(),
-      };
+      if (userInQueue?.expireAt < new Date()) {
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        queueInfoModel.findOneAndDelete({ _id: userInQueue._id }).exec();
+        return {
+          status: 404,
+          message: 'Not in Queue',
+          data: {
+            complexity: ['Easy', 'Medium', 'Hard'],
+            categories: QuestionType.get(),
+            language: LanguageType.get(),
+          },
+        };
+      } else {
+        return {
+          status: 200,
+          message: 'In Queue!',
+          data: userInQueue.toJSON(),
+        };
+      }
     } else {
       return {
         status: 404,
