@@ -20,6 +20,7 @@ export default class MongoClient {
     } as ConnectOptions);
 
     const db = mongoose.connection;
+    mongoose.set('useFindAndModify', false);
 
     db.on('error', (error) => {
       if (error.name === 'MongoError') {

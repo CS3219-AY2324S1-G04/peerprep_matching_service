@@ -188,12 +188,13 @@ router.post('/join', verifyJwt, async (req, res) => {
       // I found no same preference.
       else {
         try {
+          const expiry = new Date(Date.now() + config.mongoQueueExpiry);
           new queueInfoModel({
             userID: uid,
             complexity: userPref.complexity,
             categories: userPref.categories,
             language: userPref.language,
-            expireAt: new Date(Date.now() + config.mongoQueueExpiry),
+            expireAt: expiry,
           }).save();
           res.status(200).json({
             status: 200,
@@ -202,6 +203,7 @@ router.post('/join', verifyJwt, async (req, res) => {
               complexity: userPref.complexity,
               categories: userPref.categories,
               language: userPref.language,
+              expireAt: expiry,
             },
           });
         } catch (error) {
