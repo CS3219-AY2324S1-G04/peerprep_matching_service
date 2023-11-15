@@ -24,8 +24,9 @@ router.get('/', verifyJwt, async (req, res) => {
   const uid = res.locals['user-id'];
 
   const checkQueue = await inQueue(uid);
-
   if (checkQueue.status == 200) {
+    // console.log(`User ${uid}: In queue! - ${new Date(Date.now())}`);
+    // console.log(checkQueue.data); --- @
     res.status(200).json({
       status: checkQueue.status,
       message: checkQueue.message,
@@ -35,12 +36,16 @@ router.get('/', verifyJwt, async (req, res) => {
     const checkRoom = await inRoom(req.cookies['access-token']);
     if (checkRoom.status == 200) {
       // 303 See other.
+      // console.log(
+      //   `User ${uid}: I have been matched or I am already in a room!`,
+      // );
       res.status(303).json({
         status: 303,
         message: 'In room!',
         data: undefined,
       });
     } else if (checkRoom.status == 404) {
+      // console.log(`User ${uid}: I am not in a room!`);
       res.status(checkRoom.status).json({
         status: checkRoom.status,
         message: 'Not in room or queue',
@@ -72,6 +77,9 @@ router.post('/join', verifyJwt, async (req, res) => {
   const checkQueue = await inQueue(uid);
 
   if (checkQueue.status == 200) {
+    // console.log(
+    //   `User ${uid}: I am already in queue! - ${new Date(Date.now())}`,
+    // );
     // Already in queue
     res.status(409).json({
       status: 409,
@@ -82,12 +90,14 @@ router.post('/join', verifyJwt, async (req, res) => {
     // not in queue, but in room?
     const checkRoom = await inRoom(req.cookies['access-token']);
     if (checkRoom.status == 200) {
+      // console.log(`User ${uid}: I am already in room!`);
       res.status(303).json({
         status: 303,
         message: checkRoom.message,
         data: checkRoom.data,
       });
     } else if (checkRoom.status == 404) {
+      // console.log(`User ${uid}: Not in room, means I can join queue!`);
       // Desireable outcome
       // not in room nor in queue - pull this out into new middleman
 
@@ -125,6 +135,11 @@ router.post('/join', verifyJwt, async (req, res) => {
         const matchedValues: string[] = samePrefUser.categories.filter(
           (value) => userPref.categories.includes(value),
         );
+
+        // console.log(
+        // eslint-disable-next-line max-len
+        //   `User ${uid}: I've matched with someone with same categories! ${matchedValues}`,
+        // );
 
         const baseUrl =
           config.questionServiceURL +
@@ -196,6 +211,16 @@ router.post('/join', verifyJwt, async (req, res) => {
             language: userPref.language,
             expireAt: expiry,
           }).save();
+          // console.log(
+          //   `${JSON.stringify({
+          //     data: {
+          //       complexity: userPref.complexity,
+          //       categories: userPref.categories,
+          //       language: userPref.language,
+          //       expireAt: expiry.toISOString(),
+          //     },
+          //   })}`,
+          // );
           res.status(200).json({
             status: 200,
             message: 'Joined Queue!',
@@ -203,7 +228,7 @@ router.post('/join', verifyJwt, async (req, res) => {
               complexity: userPref.complexity,
               categories: userPref.categories,
               language: userPref.language,
-              expireAt: expiry,
+              expireAt: expiry.toISOString,
             },
           });
         } catch (error) {
@@ -286,7 +311,7 @@ async function inQueue(uid: string) {
       return {
         status: 200,
         message: 'In Queue!',
-        data: userInQueue.toJSON,
+        data: userInQueue.toJSON(),
       };
     } else {
       return {

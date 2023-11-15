@@ -29,6 +29,7 @@ export default class MongoClient {
       useUnifiedTopology: true,
       useCreateIndex: true,
       serverSelectionTimeoutMS: 30000,
+      useFindAndModify: false,
     } as ConnectOptions);
 
     this._connection = mongoose.connection;
