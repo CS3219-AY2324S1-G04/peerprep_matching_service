@@ -67,13 +67,17 @@ export class LanguageType {
     try {
       const query = await axios.get(baseUrl);
       if (query.data.data) {
+        console.log(query.data.data);
         const langSlugs: string[] = query.data.data.map(
           (item: { language: string; langSlug: string }) => item['langSlug'],
         );
-        // langSlugs.push("none")
 
-        LanguageType._languageTypes = langSlugs;
-        console.log('Updated Languages');
+        if (langSlugs.length === 0) {
+          console.log('Somehow question slugs returned empty');
+        } else {
+          LanguageType._languageTypes = langSlugs;
+          console.log('Updated Languages');
+        }
       } else {
         throw new Error(
           'question-service at /question-service/languages does not return expected results',

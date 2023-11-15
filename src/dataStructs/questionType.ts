@@ -73,8 +73,13 @@ export default class QuestionType {
     try {
       const query = await axios.get(baseUrl);
       if (query.data.data) {
-        QuestionType._questionTypes = query.data.data;
-        console.log('Updated Questions');
+        console.log(query.data.data);
+        if (Array.isArray(query.data.data) && query.data.data.length !== 0) {
+          QuestionType._questionTypes = query.data.data;
+          console.log('Updated Questions');
+        } else {
+          console.log('Unable to update questions properly');
+        }
       } else {
         throw new Error(
           'question-service at /question-service/categories does not return expected results',
