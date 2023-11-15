@@ -131,7 +131,7 @@ router.post('/join', verifyJwt, async (req, res) => {
           '/question-service/question-matching/question?';
         const complexityParam = `complexity=${userPref.complexity}`;
         const categoryParam = matchedValues
-          .map((item) => `category[]=${item}`)
+          .map((item) => `categories[]=${item}`)
           .join('&');
         const languageParam = `language=${userPref.language}`;
 
