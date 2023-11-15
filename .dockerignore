@@ -1,0 +1,4 @@
+.vscode/
+docker_build/
+kubernetes/
+node_modules/
