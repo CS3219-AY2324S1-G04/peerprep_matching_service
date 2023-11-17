@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: matching-service-database-initialiser
-          image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_database_initialiser
+          image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_database_initialiser:demo
           env:
             - name: MS_MONGO_URI
               valueFrom:

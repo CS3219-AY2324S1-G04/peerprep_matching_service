@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: matching-service-api
-          image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_api
+          image: ghcr.io/cs3219-ay2324s1-g04/peerprep_matching_service_api:demo
           ports:
             - containerPort: 9002
           env:
